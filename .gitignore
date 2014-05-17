@@ -26,3 +26,8 @@ target/
 Leiningen.gitignore
 .lein-failures
 
+# npm
+node_modules/
+
+# Sass
+.sass-cache/
