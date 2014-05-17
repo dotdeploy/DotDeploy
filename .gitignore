@@ -24,4 +24,5 @@ target/
 
 # Clojure
 Leiningen.gitignore
+.lein-failures
 
