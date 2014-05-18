@@ -42,8 +42,9 @@ then
 fi 
 
 ## now that we know dotdeploy is instaled, proceed. 
-## note somebody could nefariously put a .sh file and it will get sourced automatically this way.
-source $DOTDEPLOY_DIRECTORY/lib/*.sh
+source $DOTDEPLOY_DIRECTORY/lib/httpClient.sh
+source $DOTDEPLOY_DIRECTORY/lib/logHelper.sh
+source $DOTDEPLOY_DIRECTORY/lib/fileMetadataStore.sh
 
 # todo spencer ensure that the command was supported and valid
 command=$1
