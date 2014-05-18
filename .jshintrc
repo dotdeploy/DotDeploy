@@ -68,6 +68,10 @@
         "console",
 
         /* Grunt */
-        "module"
+        "module",
+        "require",
+
+        /* Google+ API */
+        "gapi"
     ]
 }

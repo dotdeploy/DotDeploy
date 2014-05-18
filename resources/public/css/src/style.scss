@@ -1,0 +1,44 @@
+body {
+    padding-top: 70px;
+}
+
+header {
+    .login {
+        height: 31px;
+        margin-top: 10px;
+        overflow: hidden;
+    }
+    .profile {
+        button {
+            $img-height: 35px;
+            margin-bottom: 0;
+            overflow: hidden;
+            padding-left: $img-height + 12px;
+
+            img {
+                left: 0;
+                position: absolute;
+                top: 0;
+                width: $img-height;
+            }
+        }
+    }
+}
+
+.home {
+    .hero {
+        background: #036303;
+        color: white;
+        height: 300px;
+        padding: 50px;
+
+        h1 {
+            font-family: monospace;
+            font-size: 100px;
+        }
+
+        p {
+            font-size: 20px;
+        }
+    }
+}
