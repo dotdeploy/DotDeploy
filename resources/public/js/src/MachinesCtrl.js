@@ -1,8 +1,14 @@
 'use strict';
 
-var DEPENDENCIES = [];
+var DEPENDENCIES = ['$rootScope', '$routeParams', 'User'];
 
-function MachinesCtrl() {
+function MachinesCtrl($rootScope, $routeParams, User) {
+    User.init().then(function() {
+        this.list = User.machines;
+        this.selected = _.find(this.list, function(machine) {
+            return machine['machine-id'] === $routeParams.machineId;
+        });
+    }.bind(this));
 }
 
 MachinesCtrl.$inject = DEPENDENCIES;

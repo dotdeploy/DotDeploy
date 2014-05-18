@@ -1,5 +1,6 @@
 (ns dotdeploy.user
   (:require [dotdeploy.files :as files]
+            [dotdeploy.util :refer [when-let*]]
             [monger.core :as mg]
             [monger.collection :as mc]
             [monger.result :refer [ok?]]
@@ -40,10 +41,17 @@
         db   (mg/get-db conn (:db mongo-options))]
     (mc/find-one-as-map db (:users-collection mongo-options) {:user-id user-id})))
 
+(defn machine->user
+  "Retrieve a User fomr the database by machine-id"
+  [machine-id]
+  (let [conn (mg/connect)
+        db (mg/get-db conn (:db mongo-options))]
+    (mc/find-one-as-map db (:users-collection mongo-options) {:machines.machine-id machine-id})))
+
 (defn create-user
   "Create a new user in the database"
   [user-id profile]
-  (let [user {:user-id user-id :name (:displayName profile)}
+  (let [user {:user-id user-id :name (:displayName profile) :machines [] :files []}
         new-user (created-now (with-oid user))
         conn (mg/connect)
         db   (mg/get-db conn (:db mongo-options))]
@@ -57,13 +65,18 @@
   ; TODO: implement get-files
   machine-id)
 
-(defn add-file
-  "Add a new file to GridFS and return the revision number of the added file"
-  ([f machine-id filename]
-    (add-file f machine-id (files/extract-filetype filename) filename))
-  ([f machine-id filename revision]
-    (add-file f machine-id (files/extract-filetype filename) filename revision))
-  ([f machine-id type filename revision]
-   (when-let [gridfs-id (files/persist filename f)]
-     ; TODO: Finish this
-     gridfs-id)))
+(defn update-file
+  [f file-id previous-revision user-id]
+  file-id)
+
+(defn create-file
+  "Create a new file for a user, return the id"
+  [f path user-id]
+  (let [gridid (.toString (files/persist path f))
+        revision (created-now (with-oid {:revision 1 :gridid gridid}))
+        filename (files/path->filename path)
+        file (with-oid {:path path :profiles [] :type  (files/extract-filetype filename) :revisions [revision]})
+        conn (mg/connect)
+        db   (mg/get-db conn (:db mongo-options))]
+    (mc/find-and-modify db (:users-collection mongo-options) {:user-id user-id} {"$push" {:files file}} {})
+    (.toString (:_id file))))

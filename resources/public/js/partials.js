@@ -1,8 +1,13 @@
 angular.module('dotdeploy').run(['$templateCache', function($templateCache) {
   'use strict';
 
+  $templateCache.put('file.html',
+    "<div class=\"files editor\"><a href=\"#/files\">Show All</a></div>"
+  );
+
+
   $templateCache.put('files.html',
-    "files"
+    "<div class=\"files browser\"><ul><li ng-repeat=\"file in files.list\">{{file}}</li></ul></div>"
   );
 
 
@@ -16,13 +21,23 @@ angular.module('dotdeploy').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('machine.html',
+    "<div class=\"machines editor\"><a href=\"#/machines\">Show All</a></div>"
+  );
+
+
   $templateCache.put('machines.html',
-    "machines"
+    "<div class=\"machines browser\"><ul><li ng-repeat=\"machine in machines.list\"><a href=\"/#machines/{{machine['machine-id']}}\">{{machine.name || machine.hostname}}</a></li></ul></div>"
+  );
+
+
+  $templateCache.put('profile.html',
+    "<div class=\"profile editor\"><a href=\"#/profiles\">Show All</a></div>"
   );
 
 
   $templateCache.put('profiles.html',
-    "profiles"
+    "<div class=\"profile browser\"><ul><li ng-repeat=\"profile in profiles.list\">{{profile}}</li></ul></div>"
   );
 
 }]);

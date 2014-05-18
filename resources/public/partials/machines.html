@@ -1,1 +1,7 @@
-machines
+<div class="machines browser">
+    <ul>
+        <li ng-repeat="machine in machines.list">
+            <a href="/#machines/{{machine['machine-id']}}">{{machine.name || machine.hostname}}</a>
+        </li>
+    </ul>
+</div>
