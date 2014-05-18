@@ -25,9 +25,13 @@ target/
 # Clojure
 Leiningen.gitignore
 .lein-failures
+.nrepl-port
 
 # npm
 node_modules/
 
 # Sass
 .sass-cache/
+
+# DotDeploy
+client-keys.json
