@@ -1,0 +1,71 @@
+#!/bin/bash
+
+#
+# dotdeploy - dispatcher script
+# 
+# 
+
+DOTDEPLOY_DIRECTORY="$HOME/.dotdeploy/"
+
+function print_usage {
+    if [ -n "$1" ]
+    then
+        echo ERROR: $1
+        echo
+    fi
+ 
+    echo -e "\e[01;1mdotdeploy v0.1\e[00m
+    
+Usage:
+    $0 \e[01;1m<command> [arguments...]\e[00m 
+  
+Description:
+    See http://dotdeploy.works
+  
+Commands: 
+    $0 \e[01;1mhelp\e[00m - Displays $0 help.
+    $0 \e[01;1madd <filename> [profile]\e[00m - Adds a file remotely.
+    $0 \e[01;1mstatus [filename]\e[00m  - Prints tracking status of this machine or file. 
+    $0 \e[01;1muninstall\e[00m - Stops tracking this machine on dotfiles, 
+    $0 \e[01;1mname\e[00m (implement?)"
+}
+
+
+## check that dotdeploy files are correctly setup
+if [ ! -d $DOTDEPLOY_DIRECTORY ]
+then
+    print_usage 
+    echo
+    echo -e "\e[01;31m[error]\e[00m - dotdeploy is not installed in $HOME. Please visit http://dotdeploy.works for installation instructions."
+    exit 1
+fi 
+
+# todo spencer ensure that the command was supported and valid
+command=$1
+
+#if [[ $command == "" ]] 
+#then 
+  #  $command="help"
+#fi
+   
+case "$command" in
+    ''|help)
+        print_usage
+        ;;
+    
+    add)
+        echo "not implemented"
+        ;;
+    
+    status)
+        echo "not implemented"
+        ;;
+        
+    uninstall)
+        echo "not implemented"
+        ;;
+        
+    name)
+        echo "not implemented"
+        ;;
+esac
