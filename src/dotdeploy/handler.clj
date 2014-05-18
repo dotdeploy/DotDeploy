@@ -3,12 +3,14 @@
   (:require [dotdeploy.middleware :refer [wrap-dir-index
                                           wrap-response-logger
                                           wrap-request-logger
-                                          wrap-authentication-handler]]
+                                          wrap-authentication-handler
+                                          access-control-header]]
             [dotdeploy.http :as http]
             [dotdeploy.user :as user]
             [clojure.walk :refer [keywordize-keys]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.format-response :refer [wrap-restful-response]]
+            [ring.middleware.json :refer [wrap-json-body]]
             [ring.util.response :refer [content-type header]]
             [compojure.handler :as handler]
             [compojure.route :as route]
@@ -23,8 +25,7 @@
                     (OPTIONS "/" [] (http/options [:head :options]))
                     (context "/register" []
                              (POST "/" [:as req]
-                                   (let [headers (keywordize-keys (req :headers))
-                                         machine-id (:x-machine-id headers)]
+                                   (let [headers (keywordize-keys (req :headers))]
                                      (if (user/create-machine (:x-token headers) machine-id (:x-hostname headers))
                                        (http/created (str "/api/machine/" machine-id "/manifest"))
                                        (http/conflict))))
@@ -36,7 +37,7 @@
                              (GET "/:id" [id] (http/not-implemented))
                              (POST "/" [:as req]
                                    (let [headers (keywordize-keys (req :headers))
-                                         user-id (user/machine->user machine-id)
+                                         user-id (.toString (:user-id (user/machine->user machine-id)))
                                          location (user/create-file (:body req) (:x-path headers) user-id)]
                                      (if location
                                        (http/created (str "/api/machine/" machine-id "/file/" location))
@@ -60,14 +61,26 @@
                                times (or (:times (:query-params req)) 1)
                                expriation-date (or (:expiration (:query-params req)) :none)
                                token (str (UUID/randomUUID))]
-                           (print (:query-params req))
                            (if (user/create-token user-id {:token token :times times :expiration-date expriation-date})
                              (http/created nil token)
                              (http/conflict))))
                     (GET "/user/:user-id" [user-id :as req]
                          (let [user (user/get-user user-id )]
-                           (-> (http/ok user)
-                               (header "Access-Control-Allow-Origin" "http://localhost"))))
+                           (http/ok (user/build-profiles user))))
+                    (PATCH "/user/:user-id/machine/:machine-id" [user-id machine-id :as req]
+                           ; TODO: Verify that this machine-id belongs to this user-id
+                           (let [body (:body req)]
+                             (if (user/update-machine body machine-id)
+                               (http/ok nil)
+                               (http/conflict))))
+                    (OPTIONS "/user/:user-id/machine/:machine-id" [user-id machine-id]
+                             (http/options [:patch]))
+                    (PATCH "/user/:user-id/file/:file-id" [user-id file-id :as req]
+                           ; TODO: Verify that this file-id belongs to this user-id
+                           (let [body (:body req)]
+                             (if (user/update-file body file-id)
+                               (http/ok nil)
+                               (http/conflict))))
                     (ANY "*" [] (http/method-not-allowed [:head])))
            (route/not-found "That's not a valid request"))
 
@@ -94,9 +107,11 @@
   (-> (handler/api site-api)
       (wrap-authentication-handler)
       (wrap-params)
+      (wrap-json-body)
       (wrap-request-logger)
       (wrap-response-logger)
-      (wrap-restful-response)))
+      (wrap-restful-response)
+      (access-control-header)))
 
 
 (def app

@@ -38,6 +38,13 @@
 
 ;;;; Database manipuation functions
 
+(defn build-profiles
+  "Create a profiles section in the User for convenience purposes"
+  [user]
+  (let [machine-profiles (set (flatten (map :profiles (:machines user))))
+        files-profiles (set (flatten (map :profiles (:files user))))]
+    (assoc user :profiles (clojure.set/union machine-profiles files-profiles))))
+
 (defn get-user
   "Retrieve a User from the database by id, or nil if it doesn't exist"
   [user-id]
@@ -55,12 +62,11 @@
 (defn token->user
   "Retrieve the user associated with a token, decrement the number of usages left on that token"
   [token]
-  ; TODO: Decrement the number of usages left on the token
+  ; TODO: Decrement the number of usages left on the token or delete the token
   ; TODO: Invalidate/remove tokens that have expired
-
   (let [conn (mg/connect)
         db (mg/get-db conn (:db mongo-options))]
-    (mc/find-one-as-map db (:users-collection mongo-options {:tokens.token token}))))
+    (mc/find-one-as-map db (:users-collection mongo-options) {:tokens.token token})))
 
 (defn create-user
   "Create a new user in the database"
@@ -76,22 +82,20 @@
 (defn create-machine
   "Create a new machine for a user"
   [token machine-id hostname]
-  (let [user (token->user token)
+  (let [user-id (.toString (:user-id (token->user token)))
         machine (check-in (created-now (with-oid {:machine-id machine-id :hostname hostname :active true :profiles []})))
         conn (mg/connect)
         db (mg/get-db conn (:db mongo-options))]
     ; TODO: Add the profiles from the token to this machine
-    (ok? (mc/find-and-modify db (:users-collection mongo-options) {:user-id user} {"$push" {:machines machine}} {}))))
+    ; FIXME: All of these ok? methods break if something goes wrong and nil is returned
+    (ok? (mc/find-and-modify db (:users-collection mongo-options) {:user-id user-id} {"$push" {:machines machine}} {}))))
 
 (defn create-token
   "Create a new token which can be used to register a new machine"
   [user-id token]
   (let [conn (mg/connect)
-        db (mg/get-db conn (:db mongo-options))
-        result (mc/find-and-modify db (:users-collection mongo-options) {:user-id user-id} {"$push" {:tokens token}} {})]
-    (print token)
-    (print user-id)
-    123))
+        db (mg/get-db conn (:db mongo-options))]
+    (ok? (mc/find-and-modify db (:users-collection mongo-options) {:user-id user-id} {"$push" {:tokens token}} {}))))
 
 (defn get-files
   "Returns the files object for the user that owns this machine"
@@ -101,16 +105,37 @@
 
 (defn update-file
   [f file-id previous-revision user-id]
+  ; TODO: implement update-file
   file-id)
+
+(defn update-machine
+  "Update select values in a particular machine"
+  ; FIXME: This currently assumes that the keys are "machines.$.<prop>" so that the update works
+  ; see http://stackoverflow.com/questions/10522347/mongodb-update-an-object-in-nested-array
+  [body machine-id]
+  (let [conn (mg/connect)
+        db (mg/get-db conn (:db mongo-options))]
+    (ok? (mc/update db (:users-collection mongo-options) {:machines.machine-id machine-id} {"$set" body}))))
+
+(defn update-file
+  "Update select values in a particular file"
+  ; FIXME: This currently assumes that the keys are "files.$.<prop>" so that the update works
+  ; see http://stackoverflow.com/questions/10522347/mongodb-update-an-object-in-nested-array
+  [body file-id]
+  (let [conn (mg/connect)
+        db (mg/get-db conn (:db mongo-options))]
+    (ok? (mc/update db (:users-collection mongo-options) {:files.file-id file-id} {"$set" body}))))
 
 (defn create-file
   "Create a new file for a user, return the id"
   [f path user-id]
   (let [gridid (.toString (files/persist path f))
-        revision (created-now (with-oid {:revision 1 :gridid gridid}))
+        revision (created-now {:revision 1 :gridid gridid})
         filename (files/path->filename path)
-        file (with-oid {:path path :profiles [] :type  (files/extract-filetype filename) :revisions [revision]})
+        file {:path path :profiles [] :type  (files/extract-filetype filename) :revisions [revision] :file-id (util/random-uuid)}
         conn (mg/connect)
         db   (mg/get-db conn (:db mongo-options))]
-    (mc/find-and-modify db (:users-collection mongo-options) {:user-id user-id} {"$push" {:files file}} {})
-    (.toString (:_id file))))
+    (if (ok? (mc/find-and-modify db (:users-collection mongo-options) {:user-id user-id} {"$push" {:files file}} {}))
+      ; FIXME: This does not return true when it should
+      (.toString (:_id file))
+      nil)))
