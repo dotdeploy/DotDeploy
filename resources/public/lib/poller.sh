@@ -27,6 +27,7 @@ function fetchFilePopulateMetadata {
     revision=$4
     
     fetchUrl $location > $DOTDEPLOY_DIRECTORY/tracked/$fileId
+    
     sha5Sum=$(sha5SumFileId $fileId)
     
     # update our metadata on it

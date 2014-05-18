@@ -14,7 +14,7 @@ META_SUFFIX=".meta"
 # $0: path to file
 function getMetadataForPath {
     relativePath=$(echo "~$1" | sed "s|$HOME||g")
-    matchMetaFile=$(grep --with-filename $relativePath $FILE_STORE_DIRECTORY/*.meta)
+    matchMetaFile=$(grep --with-filename -e "=$relativePath$" $FILE_STORE_DIRECTORY/*.meta)
     
     # did grep find anything?
     if [ $? -eq 0 ]
@@ -26,11 +26,10 @@ function getMetadataForPath {
         then
             cat $metaFile
         else
-            echo "Could not find meta file. arg=$0"
             return 1
         fi
     else
-        echo "no match"
+        return 1
     fi
 }
 
