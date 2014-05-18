@@ -1,4 +1,5 @@
 (ns dotdeploy.handler
+  (:import (java.util UUID))
   (:require [dotdeploy.middleware :refer [wrap-dir-index
                                           wrap-response-logger
                                           wrap-request-logger
@@ -21,8 +22,13 @@
                     (HEAD "/" [] (http/not-implemented))
                     (OPTIONS "/" [] (http/options [:head :options]))
                     (context "/register" []
-                             (GET "/" [] (http/not-implemented))
-                             (OPTIONS "/" [] (http/options [:get :options])))
+                             (POST "/" [:as req]
+                                   (let [headers (keywordize-keys (req :headers))
+                                         machine-id (:x-machine-id headers)]
+                                     (if (user/create-machine (:x-token headers) machine-id (:x-hostname headers))
+                                       (http/created (str "/api/machine/" machine-id "/manifest"))
+                                       (http/conflict))))
+                             (OPTIONS "/" [] (http/options [:post :options])))
                     (context "/manifest" []
                              (GET "/" [] (http/not-implemented))
                              (OPTIONS "/" [] (http/options [:get :options])))
@@ -33,7 +39,7 @@
                                          user-id (user/machine->user machine-id)
                                          location (user/create-file (:body req) (:x-path headers) user-id)]
                                      (if location
-                                       (http/created (str "/api/machine/" machine-id "file/" location))
+                                       (http/created (str "/api/machine/" machine-id "/file/" location))
                                        (http/conflict))))
                              (PATCH "/" [:as req]
                                     (let [headers (keywordize-keys (req :headers))
@@ -48,6 +54,16 @@
            "Routes used by the website and last point of searching for a handler"
            (context "/api/site" []
                     (HEAD "/" [] (http/not-implemented))
+                    (GET "/token" [:as req]
+                         (let [req (keywordize-keys req)
+                               user-id (:user-id (:query-params req))
+                               times (or (:times (:query-params req)) 1)
+                               expriation-date (or (:expiration (:query-params req)) :none)
+                               token (str (UUID/randomUUID))]
+                           (print (:query-params req))
+                           (if (user/create-token user-id {:token token :times times :expiration-date expriation-date})
+                             (http/created nil token)
+                             (http/conflict))))
                     (GET "/user/:user-id" [user-id :as req]
                          (let [user (user/get-user user-id )]
                            (-> (http/ok user)

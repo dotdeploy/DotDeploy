@@ -75,10 +75,7 @@
           method (req :request-method)]
       (if (nil? access_token)
         (throw+ {:type ::missing_token} "Access token does not exist"))
-      (if (or (= method :post)
-              (= method :put))
-        (handler (assoc-in req [:body :created_by] ((authorize-google-code access_token) :user_id)))
-        (handler (assoc-in req [:query-params :user_id ] ((authorize-google-code access_token) :user_id)))))))
+      (handler (assoc-in req [:query-params :user-id ] ((authorize-google-code access_token) :user-id))))))
 
 (defn wrap-exception-handler
   "Ring middleware function to trap any uncaught exceptions and return an appropriate
