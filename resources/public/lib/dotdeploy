@@ -4,7 +4,7 @@
 # dotdeploy - dispatcher script
 # 
 # 
-
+SCRIPT_NAME=$(echo $0 | rev | cut -d/ -f1 | rev)
 DOTDEPLOY_DIRECTORY="$HOME/.dotdeploy"
 
 function print_usage {
@@ -17,17 +17,18 @@ function print_usage {
     echo -e "\e[01;1mdotdeploy v0.1\e[00m
     
 Usage:
-    $0 \e[01;1m<command> [arguments...]\e[00m 
+    $SCRIPT_NAME \e[01;1m<command> [arguments...]\e[00m 
   
 Description:
     See http://dotdeploy.works
   
 Commands: 
-    $0 \e[01;1mhelp\e[00m - Displays $0 help.
-    $0 \e[01;1madd <filename> [profile]\e[00m - Adds a file remotely.
-    $0 \e[01;1mstatus [filename]\e[00m  - Prints tracking status of this machine or file. 
-    $0 \e[01;1muninstall\e[00m - Stops tracking this machine on dotfiles, 
-    $0 \e[01;1mname\e[00m (implement?)"
+    $SCRIPT_NAME \e[01;1mhelp\e[00m - Displays $0 help.
+    $SCRIPT_NAME \e[01;1madd <filename> [profile]\e[00m - Adds a file for remote tracking.
+    $SCRIPT_NAME \e[01;1mupdate\e[00m  - Updates all files.. 
+    $SCRIPT_NAME \e[01;1mstatus [filename]\e[00m  - Prints tracking status of this machine or file. 
+    $SCRIPT_NAME \e[01;1muninstall\e[00m - Stops tracking this machine and restores original files.
+    $SCRIPT_NAME \e[01;1mname\e[00m (implement?)"
 }
 
 
@@ -58,6 +59,10 @@ case "$command" in
         ;;
     
     add)
+        echo "not implemented"
+        ;;
+        
+    update)
         echo "not implemented"
         ;;
     
