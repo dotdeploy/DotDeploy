@@ -10,7 +10,7 @@ MACHINE_UUID=$(uuidgen)
 DOTDEPLOY_DIRECTORY="$HOME/.dotdeploy"
 CLIENT_INSTALL_DIRECTORY="/usr/local/bin"
 CLIENT_NAME="dotdeploy"
-DEPENDENCY_FILENAMES=("logHelper.sh" "cronHelper.sh" "urlHelper.sh" "poller.sh" "pusher.sh")
+DEPENDENCY_FILENAMES=("logHelper.sh" "cronHelper.sh" "httpClient.sh" "poller.sh" "pusher.sh")
 DEBUG=true
 
 # Fetches a URL to stdout using the first available of curl, wget.
@@ -105,6 +105,7 @@ function fetchDependencies {
     do
         echo -n "    fetching $fileName ... " 
         fetchUrl "$DOTDEPLOY_URL/lib/$fileName" > "$DOTDEPLOY_DIRECTORY/lib/$fileName"  
+	chmod +x "$DOTDEPLOY_DIRECTORY/lib/$fileName"
         logSuccess " [ok]"
         echo 
     done     
