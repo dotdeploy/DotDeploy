@@ -9,6 +9,15 @@ function MachinesCtrl($rootScope, $routeParams, User) {
             return machine['machine-id'] === $routeParams.machineId;
         });
     }.bind(this));
+
+    this.getSelectedName = function() {
+        if (!this.selected) {
+            return 'Loading...';
+        }
+        return (this.selected.name || '') +
+               _.sprintf((this.selected.name ? ' (%s)' : '%s'),
+                         this.selected.hostname);
+    };
 }
 
 MachinesCtrl.$inject = DEPENDENCIES;

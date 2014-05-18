@@ -1,7 +1,8 @@
 <div class="profile browser">
+    <h1>Your Profiles</h1>
     <ul>
         <li ng-repeat="profile in profiles.list">
-            {{profile}}
+            <a href="/#profiles/{{profile['profile-id']}}">{{profile.name}}</a>
         </li>
     </ul>
 </div>
