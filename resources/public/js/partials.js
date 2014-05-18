@@ -7,12 +7,12 @@ angular.module('dotdeploy').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('file.html',
-    "<div class=\"files editor\"><h1>{{machines.getSelectedName()}}</h1><div class=\"form-group\"><label>Name<input type=\"text\" class=\"form-control\" ng-model=\"machines.selected.name\"></label></div><div class=\"form-group\"><label>Filename<input type=\"text\" class=\"form-control\" ng-model=\"machines.selected.name\"></label></div><textarea ui-codemirror=\"files.editorOptions\" ng-model=\"files.fileContents\"></textarea></div>"
+    "<div class=\"files editor\"><h1>{{machines.getSelectedName()}}</h1><div class=\"form-group\"><label>path (relative to ~)<input type=\"text\" class=\"form-control\" ng-model=\"files.selected.path\" placeholder=\".bashrc\"></label></div><textarea ui-codemirror=\"files.editorOptions\" ng-model=\"files.fileContents\"></textarea><button class=\"btn btn-primary\" ng-show=\"files.selected[file-id]\" ng-click=\"files.save()\"><i class=\"fa fa-save\"></i> Save</button> <button class=\"btn btn-primary\" ng-hide=\"files.selected[file-id]\" ng-click=\"files.upload()\"><i class=\"fa fa-upload\"></i> Upload</button></div>"
   );
 
 
   $templateCache.put('files.html',
-    "<div class=\"files browser\"><h1>Your Files</h1><ul><li ng-repeat=\"file in files.list\"><a href=\"/#files/{{file['file-id']}}\">{{file.name}}</a></li></ul></div>"
+    "<div class=\"files browser\"><h1>Your Files <a href=\"#/files/new\" class=\"btn btn-success\"><i class=\"fa fa-plus-square\"></i> New File</a></h1><ul><li ng-repeat=\"file in files.list\"><a href=\"/#files/{{file['file-id']}}\">{{file.name}}</a></li></ul></div>"
   );
 
 
@@ -32,7 +32,7 @@ angular.module('dotdeploy').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('machine.html',
-    "<div class=\"machines editor\"><h1>{{machines.getSelectedName()}}</h1><div class=\"form-group\"><label>Name<input type=\"text\" class=\"form-control\" ng-model=\"machines.selected.name\"></label></div><button class=\"btn btn-primary\" ng-click=\"machines.saveSelected()\"><i class=\"fa fa-save\"></i> Save</button></div>"
+    "<div class=\"machines editor\"><h1>{{machines.getSelectedName()}}</h1><div class=\"form-group\"><label>Name<input type=\"text\" class=\"form-control\" ng-model=\"machines.selected.name\" placeholder=\"My Work Laptop\"></label></div><h2>Profiles</h2><div class=\"form-group\" ng-repeat=\"(profile, model) in machines.profiles\"><label>{{profile}}<input type=\"checkbox\" class=\"form-control\" ng-model=\"machines.profiles[profile]\"></label></div><button class=\"btn btn-primary\" ng-click=\"machines.saveSelected()\"><i class=\"fa fa-save\"></i> Save</button></div>"
   );
 
 
@@ -42,12 +42,12 @@ angular.module('dotdeploy').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('profile.html',
-    "<div class=\"profile editor\"><a href=\"#/profiles\">Show All</a></div>"
+    "<div class=\"profiles editor\"><h1></h1><ul><li ng-repeat=\"file in files.list\"><a href=\"/#files/{{file['file-id']}}\">{{file.name}}</a></li></ul></div>"
   );
 
 
   $templateCache.put('profiles.html',
-    "<div class=\"profile browser\"><h1>Your Profiles</h1><ul><li ng-repeat=\"profile in profiles.list\"><a href=\"/#profiles/{{profile['profile-id']}}\">{{profile.name}}</a></li></ul></div>"
+    "<div class=\"profile browser\"><h1>Your Profiles <a href=\"#/profiles/new\" class=\"btn btn-success\"><i class=\"fa fa-plus-square\"></i> New Profile</a></h1><ul><li ng-repeat=\"profile in profiles.list\"><a href=\"/#profiles/{{profile['profile-id']}}\">{{profile.name}}</a></li></ul></div>"
   );
 
 

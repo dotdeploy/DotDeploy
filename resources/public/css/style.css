@@ -32,3 +32,11 @@ header .profile button img {
 .home .hero p {
   font-size: 20px;
 }
+
+.files label {
+  width: 100%;
+}
+.files label input {
+  font-family: monospace;
+  width: 100%;
+}
