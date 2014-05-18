@@ -43,16 +43,16 @@ function getSha5SumForId {
     getMetadataForId $1 | grep sha5sum | cut -d= -f2
 }
 
+function getPathForId {
+    getMetadataForPath $1 | grep path | cut -d= -f2
+}
+
 function getRevisionForPath {
     getMetadataForId $1 | grep revision | cut -d= -f2
 }
 
 function getSha5SumForPath {
     getMetadataForPath $1 | grep sha5sum | cut -d= -f2
-}
-
-function getRevisionForPath {
-    getMetadataForPath $1 | grep revision | cut -d= -f2
 }
 
 function sha5SumFileId {
