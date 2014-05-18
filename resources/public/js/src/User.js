@@ -35,7 +35,6 @@ function UserFactory($q, $rootScope, $http) {
                 if (this.auth.status.signed_in) {
                     request = gapi.client.plus.people.get({'userId' : 'me'});
                     request.execute(function(profile) {
-                        this.deferred.resolve();
                         this.profile = profile;
                         this.fetch();
                     }.bind(this));
@@ -50,6 +49,7 @@ function UserFactory($q, $rootScope, $http) {
                             this.auth.access_token
         )).then(function(response) {
             this.extend(response.data);
+            this.deferred.resolve();
         }.bind(this));
     };
 
