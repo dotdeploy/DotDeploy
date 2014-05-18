@@ -29,8 +29,7 @@ function Routes($routeProvider) {
             controller: 'ProfilesCtrl as profiles'
         })
         .when('/upload', {
-            templateUrl: 'upload.html',
-            controller: 'UploadCtrl as uploader'
+            templateUrl: 'upload.html'
         })
         .when('/install', {
             templateUrl: 'install.html',

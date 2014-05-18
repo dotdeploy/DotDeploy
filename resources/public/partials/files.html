@@ -1,7 +1,8 @@
 <div class="files browser">
+    <h1>Your Files</h1>
     <ul>
         <li ng-repeat="file in files.list">
-            {{file}}
+            <a href="/#files/{{file['file-id']}}">{{file.name}}</a>
         </li>
     </ul>
 </div>

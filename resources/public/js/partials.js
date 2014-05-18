@@ -1,18 +1,23 @@
 angular.module('dotdeploy').run(['$templateCache', function($templateCache) {
   'use strict';
 
+  $templateCache.put('DdUploader.html',
+    "<input type=\"file\"><button ng-click=\"uploader.upload()\">Upload</button>"
+  );
+
+
   $templateCache.put('file.html',
-    "<div class=\"files editor\"><a href=\"#/files\">Show All</a></div>"
+    "<div class=\"files editor\"><h1>{{machines.getSelectedName()}}</h1><div class=\"form-group\"><label>Name<input type=\"text\" class=\"form-control\" ng-model=\"machines.selected.name\"></label></div><div class=\"form-group\"><label>Filename<input type=\"text\" class=\"form-control\" ng-model=\"machines.selected.name\"></label></div><textarea ui-codemirror=\"files.editorOptions\" ng-model=\"files.fileContents\"></textarea></div>"
   );
 
 
   $templateCache.put('files.html',
-    "<div class=\"files browser\"><ul><li ng-repeat=\"file in files.list\">{{file}}</li></ul></div>"
+    "<div class=\"files browser\"><h1>Your Files</h1><ul><li ng-repeat=\"file in files.list\"><a href=\"/#files/{{file['file-id']}}\">{{file.name}}</a></li></ul></div>"
   );
 
 
   $templateCache.put('header.html',
-    "<header class=\"navbar navbar-inverse navbar-fixed-top\"><div class=\"container\"><div class=\"navbar-header\"><a class=\"navbar-brand\" href=\"/\">DotDeploy</a></div><div class=\"collapse navbar-collapse\"><ul class=\"nav navbar-nav\" ng-show=\"user.profile\"><li ng-class=\"{'active': $route.current.templateUrl === 'files.html'}\"><a href=\"#/files\"><i class=\"fa fa-file\"></i> Files</a></li><li ng-class=\"{'active': $route.current.templateUrl === 'machines.html'}\"><a href=\"#/machines\"><i class=\"fa fa-desktop\"></i> Machines</a></li><li ng-class=\"{'active': $route.current.templateUrl === 'profiles.html'}\"><a href=\"#/profiles\"><i class=\"fa fa-user\"></i> Profiles</a></li></ul><div class=\"login navbar-right\" ng-hide=\"user.auth.status.signed_in\"><div id=\"login-gplus\"></div></div><div class=\"profile navbar-right btn-group\" ng-show=\"user.profile\"><button class=\"btn navbar-btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><img ng-src=\"{{user.profile.image.url}}\"> {{user.profile.displayName}} <i class=\"fa fa-caret-down\"></i></button><ul class=\"dropdown-menu\" role=\"menu\"><li><a href=\"javascript:void()\" ng-click=\"user.logout()\">Logout</a></li></ul></div></div></div></header>"
+    "<header class=\"navbar navbar-inverse navbar-fixed-top\"><div class=\"container\"><div class=\"navbar-header\"><a class=\"navbar-brand\" href=\"/\">DotDeploy</a></div><div class=\"collapse navbar-collapse\"><ul class=\"nav navbar-nav\" ng-show=\"user.profile\"><li ng-class=\"{'active': $route.current.templateUrl === 'files.html'}\"><a href=\"#/files\"><i class=\"fa fa-file\"></i> Files</a></li><li ng-class=\"{'active': $route.current.templateUrl === 'machines.html'}\"><a href=\"#/machines\"><i class=\"fa fa-desktop\"></i> Machines</a></li><li ng-class=\"{'active': $route.current.templateUrl === 'profiles.html'}\"><a href=\"#/profiles\"><i class=\"fa fa-user\"></i> Profiles</a></li><li ng-class=\"{'active': $route.current.templateUrl === 'install.html'}\"><a href=\"#/install\"><i class=\"fa fa-download\"></i> Install</a></li></ul><div class=\"login navbar-right\" ng-hide=\"user.auth.status.signed_in\"><div id=\"login-gplus\"></div></div><div class=\"profile navbar-right btn-group\" ng-show=\"user.profile\"><button class=\"btn navbar-btn btn-default dropdown-toggle\" data-toggle=\"dropdown\"><img ng-src=\"{{user.profile.image.url}}\"> {{user.profile.displayName}} <i class=\"fa fa-caret-down\"></i></button><ul class=\"dropdown-menu\" role=\"menu\"><li><a href=\"javascript:void()\" ng-click=\"user.logout()\">Logout</a></li></ul></div></div></div></header>"
   );
 
 
@@ -21,13 +26,18 @@ angular.module('dotdeploy').run(['$templateCache', function($templateCache) {
   );
 
 
+  $templateCache.put('install.html',
+    "<div class=\"installer\"><h1>Generate install script</h1><textarea ui-codemirror=\"install.editorOptions\" ng-model=\"install.command\"></textarea></div>"
+  );
+
+
   $templateCache.put('machine.html',
-    "<div class=\"machines editor\"><a href=\"#/machines\">Show All</a></div>"
+    "<div class=\"machines editor\"><h1>{{machines.getSelectedName()}}</h1><div class=\"form-group\"><label>Name<input type=\"text\" class=\"form-control\" ng-model=\"machines.selected.name\"></label></div><button class=\"btn btn-primary\" ng-click=\"machines.saveSelected()\"><i class=\"fa fa-save\"></i> Save</button></div>"
   );
 
 
   $templateCache.put('machines.html',
-    "<div class=\"machines browser\"><ul><li ng-repeat=\"machine in machines.list\"><a href=\"/#machines/{{machine['machine-id']}}\">{{machine.name || machine.hostname}}</a></li></ul></div>"
+    "<div class=\"machines browser\"><h1>Your Machines</h1><ul><li ng-repeat=\"machine in machines.list\"><a href=\"/#machines/{{machine['machine-id']}}\">{{machine.name || machine.hostname}}</a></li></ul></div>"
   );
 
 
@@ -37,7 +47,12 @@ angular.module('dotdeploy').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('profiles.html',
-    "<div class=\"profile browser\"><ul><li ng-repeat=\"profile in profiles.list\">{{profile}}</li></ul></div>"
+    "<div class=\"profile browser\"><h1>Your Profiles</h1><ul><li ng-repeat=\"profile in profiles.list\"><a href=\"/#profiles/{{profile['profile-id']}}\">{{profile.name}}</a></li></ul></div>"
+  );
+
+
+  $templateCache.put('upload.html',
+    "<div class=\"upload\" dd-uploader=\"\"></div>"
   );
 
 }]);

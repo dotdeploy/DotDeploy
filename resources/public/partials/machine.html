@@ -1,3 +1,16 @@
 <div class="machines editor">
-    <a href="#/machines">Show All</a>
+    <h1>{{machines.getSelectedName()}}</h1>
+    <div class="form-group">
+        <label>
+            Name
+            <input type="text" class="form-control"  ng-model="machines.selected.name">
+        </label>
+    </div>
+
+    <button class="btn btn-primary"
+            ng-click="machines.saveSelected()">
+        <i class="fa fa-save"></i>
+        Save
+    </button>
+
 </div>
