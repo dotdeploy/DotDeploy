@@ -27,3 +27,27 @@
   (->
     (response nil)
     (status 501)))
+
+(defn created
+  "Return an HTTP 201 (Created)"
+  ([url]
+   (created url nil))
+  ([url body]
+   (->
+     (response body)
+     (status 201)
+     (header "Location" url))))
+
+(defn conflict
+  "Return an HTTP 409 (Conflict)"
+  []
+  (->
+    (response nil)
+    (status 409)))
+
+(defn ok
+  "Return an HTTP 200 (OK)"
+  [body]
+  (->
+    (response body)
+    (status 200)))

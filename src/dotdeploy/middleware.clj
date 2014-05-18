@@ -1,7 +1,9 @@
 (ns dotdeploy.middleware
-  (:require [ring.util.response :refer [response status]]
+  (:require [dotdeploy.authentication :refer [authorize-google-code]]
+            [ring.util.response :refer [response status]]
             [slingshot.slingshot :refer [try+ throw+]]
             [taoensso.timbre :refer [debug warn]]
+            [clojure.walk :refer [keywordize-keys]]
             [clojure.string :refer [upper-case]]
             [clj-time.format :as format]
             [cheshire.generate :refer [add-encoder]])
@@ -61,6 +63,22 @@
         (warn body remote-addr (upper-case (name request-method)) uri "->" status body)
         (debug remote-addr (upper-case (name request-method)) uri "->" status))
       response)))
+
+(defn wrap-authentication-handler
+  "Ring middleware function which authenticates a request, looking for an access token.
+  Validates the user, associating a user-id to the body if the request was a POST or PUT,
+  otherwise adding to the query-params."
+  [handler]
+  (fn [req]
+    (let [params (keywordize-keys (req :query-params))
+          access_token (:access_token params)
+          method (req :request-method)]
+      (if (nil? access_token)
+        (throw+ {:type ::missing_token} "Access token does not exist"))
+      (if (or (= method :post)
+              (= method :put))
+        (handler (assoc-in req [:body :created_by] ((authorize-google-code access_token) :user_id)))
+        (handler (assoc-in req [:query-params :user_id ] ((authorize-google-code access_token) :user_id)))))))
 
 (defn wrap-exception-handler
   "Ring middleware function to trap any uncaught exceptions and return an appropriate

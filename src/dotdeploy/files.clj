@@ -17,27 +17,8 @@
 
 (def mongo-options
   {:db                  "dotdeploy"
-   :machines-collection "machines"
    :users-collection    "users"
    :files-collection    "files"})
-
-;;;; Utility Functions
-
-(defn with-oid
-  "Add a new Object ID to a Recipe"
-  [recipe]
-  (assoc recipe :_id (util/object-id)))
-
-(defn created-now
-  "Set the created time in a Recipe to the current time"
-  [recipe]
-  (assoc recipe :created (time/now)))
-
-(defn modified-now
-  "Set the modified time in a Recipe to the current time"
-  [recipe]
-  (assoc recipe :modified (time/now)))
-
 
 ;;;; GridFS Manipulation
 
@@ -65,3 +46,28 @@
   "Retrieve a file from GridFS as a String"
   [name]
   (slurp (retrieve name)))
+
+;;;; File Metadata
+
+(defn extract-filetype
+  "Attempts to determine the type of this file based on the filename"
+  [filename]
+  (case filename
+    ".bashrc"       :bashrc
+    ".bash_profile" :bashrc
+    ".bash_aliases" :bashrc
+    ".aliases"      :bashrc
+    ".zshrc"        :bashrc
+    ".cshrc"        :bashrc
+    ".login"        :bashrc
+    ".vimrc"        :vimrc
+    "tmux.conf"     :tmuxrc
+    ".gitconfig"    :gitconfig
+    ".profile"      :profile
+    ".inputrc"      :inputrc
+    ".dmrc"         :desktopmanagerrc
+    ".screenrc"     :screenrc
+    ".npmrc"        :noderc
+    ".wgetrc"       :wgetrc
+    ".emacs"        :emacs
+    :unknown))
