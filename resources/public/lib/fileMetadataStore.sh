@@ -56,7 +56,7 @@ function getRevisionForPath {
 }
 
 function sha5SumFileId {
-    sha5sum -a256 $FILE_STORE_DIRECTORY/$1 | cut -d ' ' -f1
+    shasum -a256 $FILE_STORE_DIRECTORY/$1 | cut -d ' ' -f1
 }
 
 # @1: fileId
