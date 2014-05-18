@@ -83,7 +83,8 @@
   [handler]
   (fn [req]
     (let [response (handler req)]
-      (header response "Access-Control-Allow-Origin" "http://localhost"))))
+      (header response "Access-Control-Allow-Origin" "http://localhost")
+      (header response "Access-Control-Allow-Methods" "PATCH, POST, GET, OPTIONS"))))
 
 (defn wrap-exception-handler
   "Ring middleware function to trap any uncaught exceptions and return an appropriate

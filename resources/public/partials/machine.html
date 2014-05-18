@@ -3,7 +3,21 @@
     <div class="form-group">
         <label>
             Name
-            <input type="text" class="form-control"  ng-model="machines.selected.name">
+            <input type="text"
+                   class="form-control"
+                   ng-model="machines.selected.name"
+                   placeholder="My Work Laptop">
+        </label>
+    </div>
+
+    <h2>Profiles</h2>
+    <div class="form-group"
+         ng-repeat="(profile, model) in machines.profiles">
+        <label>
+            {{profile}}
+            <input type="checkbox"
+                   class="form-control"
+                   ng-model="machines.profiles[profile]">
         </label>
     </div>
 

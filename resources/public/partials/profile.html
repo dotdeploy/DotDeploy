@@ -1,3 +1,8 @@
-<div class="profile editor">
-    <a href="#/profiles">Show All</a>
+<div class="profiles editor">
+    <h1></h1>
+    <ul>
+        <li ng-repeat="file in files.list">
+            <a href="/#files/{{file['file-id']}}">{{file.name}}</a>
+        </li>
+    </ul>
 </div>

@@ -36,6 +36,20 @@ function fetchFilePopulateMetadata {
     echo "sha5sum=$sha5sum" >> $DOTDEPLOY_DIRECTORY/tracked/$fileId.meta   
 }
 
+# $1: fileId
+function restoreOriginal {
+    fileId=$1
+    RESTOREPATH=$(getPathForId $fileId)
+
+    unlink $RESTOREPATH
+    mv ${DOTDEPLOY_DIRECTORY}/originals/${RESTOREPATH} ${RESTOREPATH}
+
+    # clean up any empty directories after restoring
+    find ${DOTDEPLOY_DIRECTORY}/originals -type d -empty -delete
+}
+
+TRACKEDFILES=()
+
 fetchUrl "$DOTDEPLOY_URL/manifest.csv" | while read manifestLine
 do
     # ignore if it's a comment (i.e. a header row)
@@ -48,7 +62,9 @@ do
     path=$(echo $manifestLine | cut -d, -f$PATH_FIELD)
     revision=$(echo $manifestLine | cut -d, -f$REVISION_FIELD)
     location=$(echo $manifestLine | cut -d, -f$LOCATION_FIELD)
-    
+
+    TRACKEDFILES+=(${fileId})
+
     # determine if file already exists
     getMetadataForId $fileId
     if [ $? -eq 0 ]
@@ -94,4 +110,25 @@ do
                     
         ln -s $DOTDEPLOY_DIRECTORY/tracked/$fileId $path
     fi      
+done
+
+shopt -s nullglob
+
+EXISTINGFILES=( "$DOTDEPLOY_DIRECTORY/tracked"/* )
+
+for i in "${EXISTINGFILES[@]}";
+do
+    TRACKED=0
+    for j in "${TRACKEDFILES[@]}";
+    do
+        if [ "$(basename $i)" == "$j" ]
+        then
+            TRACKED=1
+        fi
+    done;
+
+    if [ "${TRACKED}" -eq 0 ]
+    then
+        restoreOriginal $i
+    fi
 done
