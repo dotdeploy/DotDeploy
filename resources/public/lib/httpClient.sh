@@ -20,21 +20,20 @@ function noUrlFetcher {
 function patchFile {
     FILE_ID_HEADER="X-File-Id: $2"
     REVISION_ID_HEADER="X-Previous-Revision: $3"
-    SHA256_HEADER="X-Sha256: $4"    
 
     if [ -n $(which curl) ]
     then
         curl \ 
             -sS \
             -H "$FILE_ID_HEADER" \
-            -H "$SHA256_HEADER" \
             -H "$REVISION_ID_HEADER" \
             -X PATCH \
             -d @$2 \
             $1
     elif [ -n $(which wget) ]
     then
-        # decide whether we want to support a workaround for wget
+        # todo decide whether we want to support a workaround for wget
+        # and its lack of support for patch
         echo "fatal error - wget cannot patch"
         exit 1
     else
@@ -48,11 +47,10 @@ function patchFile {
 # $4: sha256 of file
 function postFile {
     FILENAME_HEADER="X-Path: $3"
-    SHA256_HEADER="X-Sha256: $4"
 
     if [ -n $(which curl) ]
     then
-        curl -i -sS -H "$FILENAME_HEADER" -H "$SHA256_HEADER" -X POST -d @$2 $1
+        curl -i -sS -H "$FILENAME_HEADER" -X POST -d @$2 $1
     elif [ -n $(which wget) ]
     then
         wget \
@@ -61,7 +59,6 @@ function postFile {
             -q \
             --post-file=$2 \
             --header="$FILENAME_HEADER" \
-            --header="$SHA256_HEADER" \ 
             $1 \
         2>&1 | sed -e 's/^ *//g' 
     else
@@ -73,7 +70,6 @@ function postFile {
 #
 # $1: the url to fetch
 function fetchUrl {
-    
     if [ -n $(which curl) ]
     then
         curl -sS $1
@@ -83,7 +79,6 @@ function fetchUrl {
     else
         noUrlFetcher    
     fi
-
 }
 
 # Performs a head request on a URL, outputs headers to stdout.
