@@ -39,8 +39,12 @@ function fetchFilePopulateMetadata {
 function restoreOriginal {
     fileId=$1
     RESTOREPATH=$(getPathForId $fileId)
-    unlink $RESTOREPATH
 
+    unlink $RESTOREPATH
+    mv ${DOTDEPLOY_DIRECTORY}/originals/${RESTOREPATH} ${RESTOREPATH}
+
+    # clean up any empty directories after restoring
+    find ${DOTDEPLOY_DIRECTORY}/originals -type d -empty -delete
 }
 
 TRACKEDFILES=()
