@@ -5,7 +5,7 @@
 # 
 # 
 
-DOTDEPLOY_DIRECTORY="$HOME/.dotdeploy/"
+DOTDEPLOY_DIRECTORY="$HOME/.dotdeploy"
 
 function print_usage {
     if [ -n "$1" ]
@@ -32,13 +32,17 @@ Commands:
 
 
 ## check that dotdeploy files are correctly setup
-if [ ! -d $DOTDEPLOY_DIRECTORY ]
+if [ ! -d $DOTDEPLOY_DIRECTORY/lib ] 
 then
     print_usage 
     echo
     echo -e "\e[01;31m[error]\e[00m - dotdeploy is not installed in $HOME. Please visit http://dotdeploy.works for installation instructions."
     exit 1
 fi 
+
+## now that we know dotdeploy is instaled, proceed. 
+## note somebody could nefariously put a .sh file and it will get sourced automatically this way.
+source $DOTDEPLOY_DIRECTORY/lib/*.sh
 
 # todo spencer ensure that the command was supported and valid
 command=$1
