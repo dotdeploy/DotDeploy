@@ -72,7 +72,7 @@ do
     TRACKEDFILES+=(${fileId})
 
     # determine if file already exists
-    getMetadataForId $fileId > /dev/null
+    getMetadataForId $fileId > /dev/null 2> /dev/null
     if [ $? -eq 0 ]
     then
         if localEditsExist $fileId
@@ -129,8 +129,13 @@ do
                 exit 1
             fi
         fi
-                    
-        ln -s $DOTDEPLOY_DIRECTORY/tracked/$fileId $path
+        
+        relativePath=$(echo $path | sed s/~//g)          
+        ln -s $DOTDEPLOY_DIRECTORY/tracked/$fileId $HOME/$relativePath
+        
+        logInfo "new file tracking on machine: "
+        logBold $path
+        echo
     fi      
 done
 exit 0 
