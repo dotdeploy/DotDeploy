@@ -8,12 +8,12 @@
 #
 
 ACCESS_TOKEN=$1
-DOTDEPLOY_URL='http://dotdeploy.works'
+DOTDEPLOY_URL='http://localhost:8000'
 MACHINE_UUID=$(uuidgen)
 DOTDEPLOY_DIRECTORY="$HOME/.dotdeploy"
 CLIENT_INSTALL_DIRECTORY="/usr/local/bin"
 CLIENT_NAME="dotdeploy"
-DEPENDENCY_FILENAMES=("logHelper.sh" "cronHelper.sh" "httpClient.sh" "poller.sh")
+DEPENDENCY_FILENAMES=("fileMetadataStore.sh" "logHelper.sh" "cronHelper.sh" "httpClient.sh" "poller.sh")
 DEBUG=true
 
 # Fetches a URL to stdout using the first available of curl, wget.
