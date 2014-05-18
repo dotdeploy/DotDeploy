@@ -28,12 +28,11 @@ function fetchFilePopulateMetadata {
     
     fetchUrl $location > $DOTDEPLOY_DIRECTORY/tracked/$fileId
     
-    sha5Sum=$(sha5SumFileId $fileId)
-    
     # update our metadata on it
     echo "revision=$revision" > $DOTDEPLOY_DIRECTORY/tracked/$fileId.meta
     echo "path=$path" >> $DOTDEPLOY_DIRECTORY/tracked/$fileId.meta
-    echo "sha5sum=$sha5sum" >> $DOTDEPLOY_DIRECTORY/tracked/$fileId.meta   
+    sha5Sum=$(sha5SumFileId $fileId)
+    echo "sha5sum=$sha5Sum" >> $DOTDEPLOY_DIRECTORY/tracked/$fileId.meta   
 }
 
 # $1: fileId
@@ -66,17 +65,33 @@ do
     TRACKEDFILES+=(${fileId})
 
     # determine if file already exists
-    getMetadataForId $fileId
+    getMetadataForId $fileId > /dev/null
     if [ $? -eq 0 ]
     then
         if localEditsExist $fileId
         then
-            logError "local changes exist in $path, not updating"
+            logError "local changes exist in "
+            logBold $path 
+            logError ", not updating"
             echo
             exit 1
         else 
-            # local edits do not exist, proceed with updating the file
-            fetchFilePopulateMetadata $location $path $fileId $revision
+            # local edits do not exist, proceed with updating the file,
+            # if the server version is *different* (i.e., newer)
+            if revisionsDiffer $fileId $revision
+            then          
+                logInfo "remote changes exist to "
+                logBold $path
+                logInfo ", updating ... "
+                fetchFilePopulateMetadata $location $path $fileId $revision
+                logSuccess "[ok]"
+                echo
+            else 
+                logInfo "no changes exist to "
+                logBold $path
+                logInfo ", skipping"
+                echo
+            fi
         fi
     else
         # file is not tracked locally. back up existing file if necessary.
@@ -111,7 +126,7 @@ do
         ln -s $DOTDEPLOY_DIRECTORY/tracked/$fileId $path
     fi      
 done
-
+exit 0 
 shopt -s nullglob
 
 EXISTINGFILES=( "$DOTDEPLOY_DIRECTORY/tracked"/* )
