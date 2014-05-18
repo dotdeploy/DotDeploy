@@ -47,6 +47,13 @@ function restoreOriginal {
     find ${DOTDEPLOY_DIRECTORY}/originals -type d -empty -delete
 }
 
+# $1: fileId
+function removeFile {
+    fileId=$i
+    rm ${DOTDEPLOY_DIRECTORY}/tracked/${fileId}
+    rm ${DOTDEPLOY_DIRECTORY}/tracked/${fileId}.meta
+}
+
 TRACKEDFILES=()
 
 fetchUrl "$DOTDEPLOY_URL/manifest.csv" | while read manifestLine
@@ -129,5 +136,6 @@ do
     if [ "${TRACKED}" -eq 0 ]
     then
         restoreOriginal $i
+        removeFile $i
     fi
 done
