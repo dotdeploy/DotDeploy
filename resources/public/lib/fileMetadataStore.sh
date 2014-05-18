@@ -46,8 +46,12 @@ function getPathForId {
     getMetadataForPath $1 | grep path | cut -d= -f2
 }
 
-function getRevisionForPath {
+function getRevisionForId {
     getMetadataForId $1 | grep revision | cut -d= -f2
+}
+
+function getRevisionForPath {
+    getMetadataForPath $1 | grep revision | cut -d= -f2
 }
 
 function getSha5SumForPath {
@@ -56,6 +60,23 @@ function getSha5SumForPath {
 
 function sha5SumFileId {
     shasum -a256 $FILE_STORE_DIRECTORY/$1 | cut -d ' ' -f1
+}
+
+# @1: fileId
+# @2: incoming revision
+function revisionsDiffer {
+    fileId=$1
+    incomingRevision=$2
+
+    currentRevision=$(getRevisionForId $fileId)
+    
+    # can this whole if block be condensed to just the [[...]] on the next line?
+    if [[ $currentRevision == $incomingRevision ]]
+    then
+        false
+    else
+        true
+    fi
 }
 
 # @1: fileId
