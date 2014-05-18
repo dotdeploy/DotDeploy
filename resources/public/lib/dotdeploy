@@ -6,6 +6,7 @@
 # 
 SCRIPT_NAME=$(echo $0 | rev | cut -d/ -f1 | rev)
 DOTDEPLOY_DIRECTORY="$HOME/.dotdeploy"
+MACHINE_UUID=$(cat $DOTDEPLOY_DIRECTORY/.machine_uuiid)
 
 function print_usage {
     if [ -n "$1" ]
@@ -15,12 +16,13 @@ function print_usage {
     fi
  
     echo -e "\e[01;1mdotdeploy v0.1\e[00m
+Machine ID: \e[01;1m$MACHINE_UUID\e[00m   
     
 Usage:
     $SCRIPT_NAME \e[01;1m<command> [arguments...]\e[00m 
   
 Description:
-    See http://dotdeploy.works
+    See http://dotdeploy.works for more information and how to get started. 
   
 Commands: 
     $SCRIPT_NAME \e[01;1mhelp\e[00m - Displays $0 help.
@@ -46,13 +48,7 @@ source $DOTDEPLOY_DIRECTORY/lib/httpClient.sh
 source $DOTDEPLOY_DIRECTORY/lib/logHelper.sh
 source $DOTDEPLOY_DIRECTORY/lib/fileMetadataStore.sh
 
-# todo spencer ensure that the command was supported and valid
 command=$1
-
-#if [[ $command == "" ]] 
-#then 
-  #  $command="help"
-#fi
    
 case "$command" in
     ''|help)
@@ -60,22 +56,52 @@ case "$command" in
         ;;
     
     add)
-        echo "not implemented"
+        if [ -z $2 ]
+        then
+            logError "Invalid usage, no file specified to add."
+            echo
+            exit 1
+        fi
+        
+        logInfo ""
         ;;
         
     update)
-        echo "not implemented"
+        logInfo "Invoking poller ... "
+        $DOTDEPLOY_DIRECTORY/lib/poller.sh
+        if [ $? -eq 0 ]
+        then
+            logSuccess "[ok]"
+        else 
+            logError "[failed]"
+        fi
+        echo
         ;;
     
     status)
-        echo "not implemented"
+        
+    
+        metaData=$(getMetadataForPath $2)
+        
+        if [ $? -eq 0 ]
+        then
+            logBold $2
+            echo " is being tracked. Metadata included below:"
+            logInfo $metaData
+            echo
+        else
+            logBold $2
+            echo " is not being tracked. Run the following command to add it: " 
+            logBold "    $ $SCRIPT_NAME add $2"
+            echo
+        fi
         ;;
         
     uninstall)
         echo "not implemented"
         ;;
         
-    name)
+    setname)
         echo "not implemented"
         ;;
 esac
