@@ -5,6 +5,8 @@
 # Registers the machine with dotdeploy, gathers dependencies, creates a 
 # skeleton directory structure, and installs the cron. 
 #
+
+ACCESS_TOKEN=$1
 DOTDEPLOY_URL='http://192.168.11.26:3000'
 MACHINE_UUID=$(uuidgen)
 DOTDEPLOY_DIRECTORY="$HOME/.dotdeploy"
@@ -62,8 +64,7 @@ function registerMachine {
         logSuccess "[ok]"
     else
         logError "[error registering computer]"
-        echo
-        $DEBUG || echo $FETCH_RESULT
+        $DEBUG && echo $FETCH_RESULT
         $DEBUG || exit 1
     fi
     echo
