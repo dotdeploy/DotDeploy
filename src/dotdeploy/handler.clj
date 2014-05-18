@@ -23,6 +23,9 @@
                     ; FIXME: Create middleware to test if the machine-id exists (or maybe not, for register)
                     (HEAD "/" [] (http/not-implemented))
                     (OPTIONS "/" [] (http/options [:head :options]))
+                    (context "/manifest.csv" []
+                             (GET "/" [] (http/ok (user/get-manifest machine-id)))
+                             (OPTIONS "/" [] (http/options [:get :options])))
                     (context "/register" []
                              (POST "/" [:as req]
                                    (let [headers (keywordize-keys (req :headers))]
@@ -75,6 +78,8 @@
                                (http/conflict))))
                     (OPTIONS "/user/:user-id/machine/:machine-id" [user-id machine-id]
                              (http/options [:patch]))
+                    (GET "/user/:user-id/file/:file-id" [user-id file-id]
+                         (user/get-file file-id))
                     (PATCH "/user/:user-id/file/:file-id" [user-id file-id :as req]
                            ; TODO: Verify that this file-id belongs to this user-id
                            (let [body (:body req)]

@@ -59,6 +59,13 @@
         db (mg/get-db conn (:db mongo-options))]
     (mc/find-one-as-map db (:users-collection mongo-options) {:machines.machine-id machine-id})))
 
+(defn machine->profiles
+  "Retrieve the profiles associated with a machine by id"
+  [machine-id]
+  (let [conn (mg/connect)
+        db (mg/get-db conn (:db mongo-options))]
+    (:profiles (first (:machines (mc/find-one-as-map db (:users-collection mongo-options) {:machines.machine-id machine-id} {"machines.$" 1}))))))
+
 (defn token->user
   "Retrieve the user associated with a token, decrement the number of usages left on that token"
   [token]
@@ -96,6 +103,15 @@
   (let [conn (mg/connect)
         db (mg/get-db conn (:db mongo-options))]
     (ok? (mc/find-and-modify db (:users-collection mongo-options) {:user-id user-id} {"$push" {:tokens token}} {}))))
+
+(defn get-file
+  "Retrieve the newest revision of a file by id"
+  [file-id]
+  (let [conn (mg/connect)
+        db (mg/get-db conn (:db mongo-options))]
+    ; FIXME: Just blindly retrieves the last one
+    ; FIXME: Use retrieve to get the file by the gridid
+    (print (:gridid (last (:revisions (first (:files (mc/find-one-as-map db (:users-collection mongo-options) {:files.file-id file-id} {"files.$.revisions" 1})))))))))
 
 (defn get-files
   "Returns the files object for the user that owns this machine"
@@ -139,3 +155,19 @@
       ; FIXME: This does not return true when it should
       (.toString (:_id file))
       nil)))
+
+(defn get-profile-files
+  "Get files based on profile"
+  [user-id profiles]
+  ; FIXME: Not finished
+  (let [conn (mg/connect)
+        db (mg/get-db conn (:db mongo-options))]
+    (print (mc/find-maps db (:users-collection mongo-options) {:user-id user-id} {:files 1}))))
+
+(defn get-manifest
+  "Get a csv manifest for a specific machine"
+  ; FIXME: Not finished
+  [machine-id]
+  (let [profiles (machine->profiles machine-id)
+        files (get-profile-files (:user-id (machine->user machine-id)) profiles)]
+    "Hello World"))

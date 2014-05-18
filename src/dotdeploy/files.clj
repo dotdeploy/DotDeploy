@@ -20,6 +20,8 @@
    :users-collection    "users"
    :files-collection    "files"})
 
+; FIXME: This is probably not storing them in the right database
+
 ;;;; GridFS Manipulation
 
 (defn persist
