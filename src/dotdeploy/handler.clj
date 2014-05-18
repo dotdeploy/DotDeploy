@@ -3,7 +3,8 @@
   (:require [dotdeploy.middleware :refer [wrap-dir-index
                                           wrap-response-logger
                                           wrap-request-logger
-                                          wrap-authentication-handler]]
+                                          wrap-authentication-handler
+                                          access-control-header]]
             [dotdeploy.http :as http]
             [dotdeploy.user :as user]
             [clojure.walk :refer [keywordize-keys]]
@@ -60,14 +61,12 @@
                                times (or (:times (:query-params req)) 1)
                                expriation-date (or (:expiration (:query-params req)) :none)
                                token (str (UUID/randomUUID))]
-                           (print (:query-params req))
                            (if (user/create-token user-id {:token token :times times :expiration-date expriation-date})
                              (http/created nil token)
                              (http/conflict))))
                     (GET "/user/:user-id" [user-id :as req]
                          (let [user (user/get-user user-id )]
-                           (-> (http/ok user)
-                               (header "Access-Control-Allow-Origin" "http://localhost"))))
+                           (http/ok (user/build-profiles user))))
                     (ANY "*" [] (http/method-not-allowed [:head])))
            (route/not-found "That's not a valid request"))
 
@@ -96,7 +95,8 @@
       (wrap-params)
       (wrap-request-logger)
       (wrap-response-logger)
-      (wrap-restful-response)))
+      (wrap-restful-response)
+      (access-control-header)))
 
 
 (def app

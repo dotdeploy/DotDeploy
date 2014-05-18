@@ -38,6 +38,13 @@
 
 ;;;; Database manipuation functions
 
+(defn build-profiles
+  "Create a profiles section in the User for convenience purposes"
+  [user]
+  (let [machine-profiles (set (flatten (map :profiles (:machines user))))
+        files-profiles (set (flatten (map :profiles (:files user))))]
+    (assoc user :profiles (clojure.set/union machine-profiles files-profiles))))
+
 (defn get-user
   "Retrieve a User from the database by id, or nil if it doesn't exist"
   [user-id]
@@ -88,10 +95,7 @@
   [user-id token]
   (let [conn (mg/connect)
         db (mg/get-db conn (:db mongo-options))
-        result (mc/find-and-modify db (:users-collection mongo-options) {:user-id user-id} {"$push" {:tokens token}} {})]
-    (print token)
-    (print user-id)
-    123))
+    (ok? (mc/find-and-modify db (:users-collection mongo-options) {:user-id user-id} {"$push" {:tokens token}} {})])))
 
 (defn get-files
   "Returns the files object for the user that owns this machine"

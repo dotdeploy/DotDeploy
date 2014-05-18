@@ -1,6 +1,6 @@
 (ns dotdeploy.middleware
   (:require [dotdeploy.authentication :refer [authorize-google-code]]
-            [ring.util.response :refer [response status]]
+            [ring.util.response :refer [response status header]]
             [slingshot.slingshot :refer [try+ throw+]]
             [taoensso.timbre :refer [debug warn]]
             [clojure.walk :refer [keywordize-keys]]
@@ -76,6 +76,14 @@
       (if (nil? access_token)
         (throw+ {:type ::missing_token} "Access token does not exist"))
       (handler (assoc-in req [:query-params :user-id ] ((authorize-google-code access_token) :user-id))))))
+
+(defn access-control-header
+  "Ring middleware function which adds the Access-Control-Allow-Origin header
+  to responses to facilitate testing locally"
+  [handler]
+  (fn [req]
+    (let [response (handler req)]
+      (header response "Access-Control-Allow-Origin" "http://localhost"))))
 
 (defn wrap-exception-handler
   "Ring middleware function to trap any uncaught exceptions and return an appropriate
