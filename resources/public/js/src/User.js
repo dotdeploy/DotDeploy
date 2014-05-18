@@ -1,17 +1,25 @@
 'use strict';
 
-var DEPENDENCIES = ['$rootScope', '$http'];
+var DEPENDENCIES = ['$q', '$rootScope', '$http'];
 
-function UserFactory($rootScope, $http) {
+function UserFactory($q, $rootScope, $http) {
 
     function User() {
+        this.deferred = $q.defer();
         window.onSignInCallback = this.signedIn.bind(this);
     }
+
+    User.prototype.init = function() {
+        return this.deferred.promise;
+    };
 
     User.prototype.signedIn = function(authResults) {
         if (authResults.error) {
             switch (authResults.error) {
             case 'user_signed_out':
+                break;
+            case 'immediate_failed':
+                this.deferred.resolve();
                 break;
             default:
                 console.error(authResults.error);
@@ -27,6 +35,7 @@ function UserFactory($rootScope, $http) {
                 if (this.auth.status.signed_in) {
                     request = gapi.client.plus.people.get({'userId' : 'me'});
                     request.execute(function(profile) {
+                        this.deferred.resolve();
                         this.profile = profile;
                         this.fetch();
                     }.bind(this));

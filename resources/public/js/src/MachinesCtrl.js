@@ -1,8 +1,9 @@
 'use strict';
 
-var DEPENDENCIES = [];
+var DEPENDENCIES = ['User'];
 
-function MachinesCtrl() {
+function MachinesCtrl(User) {
+    this.machines = User.machines;
 }
 
 MachinesCtrl.$inject = DEPENDENCIES;

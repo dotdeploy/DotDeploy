@@ -1,8 +1,9 @@
 'use strict';
 
-var DEPENDENCIES = [];
+var DEPENDENCIES = ['User'];
 
-function FilesCtrl() {
+function FilesCtrl(User) {
+    this.files = User.files;
 }
 
 FilesCtrl.$inject = DEPENDENCIES;

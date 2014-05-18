@@ -2,7 +2,7 @@ angular.module('dotdeploy').run(['$templateCache', function($templateCache) {
   'use strict';
 
   $templateCache.put('files.html',
-    "files"
+    "<div class=\"files\"><ul><li ng-repeat=\"file in files\">{{file}}</li></ul></div>"
   );
 
 
@@ -17,12 +17,12 @@ angular.module('dotdeploy').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('machines.html',
-    "machines"
+    "<div class=\"machines\"><ul><li ng-repeat=\"machine in machines\">{{machine}}</li></ul></div>"
   );
 
 
   $templateCache.put('profiles.html',
-    "profiles"
+    "<div class=\"profile\"><ul><li ng-repeat=\"profile in profiles\">{{profile}}</li></ul></div>"
   );
 
 }]);

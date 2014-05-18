@@ -1,8 +1,9 @@
 'use strict';
 
-var DEPENDENCIES = [];
+var DEPENDENCIES = ['User'];
 
-function ProfilesCtrl() {
+function ProfilesCtrl(User) {
+    this.profiles = User.profiles;
 }
 
 ProfilesCtrl.$inject = DEPENDENCIES;
