@@ -52,13 +52,7 @@ function postFile {
 
     if [ -n $(which curl) ]
     then
-        curl \ 
-            -sS \
-            -H $FILENAME_HEADER \
-            -H $SHA256_HEADER \
-            -X POST \
-            -d @$2 \
-            $1
+        curl -i -sS -H "$FILENAME_HEADER" -H "$SHA256_HEADER" -X POST -d @$2 $1
     elif [ -n $(which wget) ]
     then
         wget \

@@ -30,9 +30,9 @@
           fs   (mg/get-gridfs conn (:files-collection mongo-options))]
       (if (instance? String f)
         (persist name (byte-array (map byte f)) mime)
-        (gfs/store-file (make-input-file fs f)
-                        (filename name)
-                        (content-type mime))))))
+        (.toString (:_id (gfs/store-file (make-input-file fs f)
+                                      (filename name)
+                                      (content-type mime))))))))
 
 (defn retrieve
   "Retrieve a file from GridFS as an InputStream"
@@ -49,9 +49,15 @@
 
 ;;;; File Metadata
 
+(defn path->filename
+  "Get the name of the file from the full path"
+  [path]
+  (last (clojure.string/split path #"/")))
+
 (defn extract-filetype
   "Attempts to determine the type of this file based on the filename"
   [filename]
+  ; FIXME: This is the full path, not filename
   (case filename
     ".bashrc"       :bashrc
     ".bash_profile" :bashrc

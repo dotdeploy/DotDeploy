@@ -22,14 +22,19 @@
 ;;;; MongoDB Utility Functions
 
 (defn with-oid
-  "Add a new Object ID to a Recipe"
-  [recipe]
-  (assoc recipe :_id (util/object-id)))
+  "Add a new Object ID to a map"
+  [object]
+  (assoc object :_id (util/object-id)))
 
 (defn created-now
-  "Set the created time in a Recipe to the current time"
-  [recipe]
-  (assoc recipe :created (time/now)))
+  "Set the created time key to the current time"
+  [object]
+  (assoc object :created (time/now)))
+
+(defn check-in
+  "Set the last-checkin to the current time"
+  [object]
+  (assoc object :last-checkin (time/now)))
 
 ;;;; Database manipuation functions
 
@@ -40,10 +45,27 @@
         db   (mg/get-db conn (:db mongo-options))]
     (mc/find-one-as-map db (:users-collection mongo-options) {:user-id user-id})))
 
+(defn machine->user
+  "Retrieve a User from the database by machine-id"
+  [machine-id]
+  (let [conn (mg/connect)
+        db (mg/get-db conn (:db mongo-options))]
+    (mc/find-one-as-map db (:users-collection mongo-options) {:machines.machine-id machine-id})))
+
+(defn token->user
+  "Retrieve the user associated with a token, decrement the number of usages left on that token"
+  [token]
+  ; TODO: Decrement the number of usages left on the token
+  ; TODO: Invalidate/remove tokens that have expired
+
+  (let [conn (mg/connect)
+        db (mg/get-db conn (:db mongo-options))]
+    (mc/find-one-as-map db (:users-collection mongo-options {:tokens.token token}))))
+
 (defn create-user
   "Create a new user in the database"
   [user-id profile]
-  (let [user {:user-id user-id :name (:displayName profile)}
+  (let [user {:user-id user-id :name (:displayName profile) :machines [] :files [] :tokens []}
         new-user (created-now (with-oid user))
         conn (mg/connect)
         db   (mg/get-db conn (:db mongo-options))]
@@ -51,19 +73,44 @@
       new-user
       (throw+ {:type ::failed} "Create user failed"))))
 
+(defn create-machine
+  "Create a new machine for a user"
+  [token machine-id hostname]
+  (let [user (token->user token)
+        machine (check-in (created-now (with-oid {:machine-id machine-id :hostname hostname :active true :profiles []})))
+        conn (mg/connect)
+        db (mg/get-db conn (:db mongo-options))]
+    ; TODO: Add the profiles from the token to this machine
+    (ok? (mc/find-and-modify db (:users-collection mongo-options) {:user-id user} {"$push" {:machines machine}} {}))))
+
+(defn create-token
+  "Create a new token which can be used to register a new machine"
+  [user-id token]
+  (let [conn (mg/connect)
+        db (mg/get-db conn (:db mongo-options))
+        result (mc/find-and-modify db (:users-collection mongo-options) {:user-id user-id} {"$push" {:tokens token}} {})]
+    (print token)
+    (print user-id)
+    123))
+
 (defn get-files
   "Returns the files object for the user that owns this machine"
   [machine-id]
   ; TODO: implement get-files
   machine-id)
 
-(defn add-file
-  "Add a new file to GridFS and return the revision number of the added file"
-  ([f machine-id filename]
-    (add-file f machine-id (files/extract-filetype filename) filename))
-  ([f machine-id filename revision]
-    (add-file f machine-id (files/extract-filetype filename) filename revision))
-  ([f machine-id type filename revision]
-   (when-let [gridfs-id (files/persist filename f)]
-     ; TODO: Finish this
-     gridfs-id)))
+(defn update-file
+  [f file-id previous-revision user-id]
+  file-id)
+
+(defn create-file
+  "Create a new file for a user, return the id"
+  [f path user-id]
+  (let [gridid (.toString (files/persist path f))
+        revision (created-now (with-oid {:revision 1 :gridid gridid}))
+        filename (files/path->filename path)
+        file (with-oid {:path path :profiles [] :type  (files/extract-filetype filename) :revisions [revision]})
+        conn (mg/connect)
+        db   (mg/get-db conn (:db mongo-options))]
+    (mc/find-and-modify db (:users-collection mongo-options) {:user-id user-id} {"$push" {:files file}} {})
+    (.toString (:_id file))))
