@@ -124,6 +124,6 @@ do
 
     if [ "${TRACKED}" -eq 0 ]
     then
-        echo delete $i
+        restoreOriginal $i
     fi
 done
