@@ -5,7 +5,7 @@
 # Registers the machine with dotdeploy, gathers dependencies, creates a 
 # skeleton directory structure, and installs the cron. 
 #
-DOTDEPLOY_URL='http://localhost:8000/api/'
+DOTDEPLOY_URL='http://192.168.11.26:3000'
 MACHINE_UUID=$(uuidgen)
 DOTDEPLOY_DIRECTORY="$HOME/.dotdeploy"
 CLIENT_INSTALL_DIRECTORY="/usr/local/bin"
@@ -61,10 +61,10 @@ function registerMachine {
     then
         logSuccess "[ok]"
     else
-        logError "[error - see output below]"
+        logError "[error registering computer]"
         echo
-        echo $FETCH_RESULT
-        exit 1
+        $DEBUG || echo $FETCH_RESULT
+        $DEBUG || exit 1
     fi
     echo
     
@@ -77,7 +77,7 @@ function registerMachine {
 
 ## create dotdeploy directory structure
 function createDirectoryStructure {
-    logInfo "Creating directory $DOTDEPLOY_DIRECTORY ... "  
+    logInfo "Creating directory structure in $DOTDEPLOY_DIRECTORY ... "  
     
     if [ -d $DOTDEPLOY_DIRECTORY ] && [[ $DEBUG == false ]]
     then
@@ -92,6 +92,8 @@ function createDirectoryStructure {
     mkdir -p "$DOTDEPLOY_DIRECTORY/originals"
     mkdir -p "$DOTDEPLOY_DIRECTORY/tracked"
     
+    echo $MACHINE_UUID > $DOTDEPLOY_DIRECTORY/.machine_uuiid
+    
     logSuccess "[ok]"
     echo
     echo
@@ -104,8 +106,8 @@ function fetchDependencies {
     for fileName in "${DEPENDENCY_FILENAMES[@]}"
     do
         echo -n "    fetching $fileName ... " 
-        fetchUrl "$DOTDEPLOY_URL/lib/$fileName" > "$DOTDEPLOY_DIRECTORY/lib/$fileName"  
-	chmod +x "$DOTDEPLOY_DIRECTORY/lib/$fileName"
+        fetchUrl "$DOTDEPLOY_URL/static/lib/$fileName" > "$DOTDEPLOY_DIRECTORY/lib/$fileName"
+        chmod +x "$DOTDEPLOY_DIRECTORY/lib/$fileName"
         logSuccess " [ok]"
         echo 
     done     
@@ -120,7 +122,7 @@ function fetchClient {
     logInfo "Fetching client ... "    
     # fetch the dotdeploy client into the *local* dotdeploy directly
     # then attempt to copy it into /usr/local/bin and 
-    fetchUrl "$DOTDEPLOY_URL/lib/$CLIENT_NAME" > $tmpFetchLocation
+    fetchUrl "$DOTDEPLOY_URL/static/lib/$CLIENT_NAME" > $tmpFetchLocation
     chmod +x $tmpFetchLocation
     logSuccess "[ok]"
     echo
