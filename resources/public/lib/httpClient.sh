@@ -66,6 +66,15 @@ function postFile {
     fi
 }
 
+# $1: URL to post to
+# $2: token header value
+# $3: hostname header value
+function postRegister {
+    tokenHeader="X-Token: $2"
+    hostnameHeader="X-Hostname: $3"
+    curl -i -sS -X POST -H "$tokenHeader" -H "$hostnameHeader" $1
+}
+
 # Fetches a URL to stdout using the first available of curl, wget.
 #
 # $1: the url to fetch

@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #
 # dotdeploy - Initialization script
 #
@@ -7,12 +8,12 @@
 #
 
 ACCESS_TOKEN=$1
-DOTDEPLOY_URL='http://192.168.11.26:3000'
+DOTDEPLOY_URL='http://dotdeploy.works'
 MACHINE_UUID=$(uuidgen)
 DOTDEPLOY_DIRECTORY="$HOME/.dotdeploy"
 CLIENT_INSTALL_DIRECTORY="/usr/local/bin"
 CLIENT_NAME="dotdeploy"
-DEPENDENCY_FILENAMES=("logHelper.sh" "cronHelper.sh" "httpClient.sh" "poller.sh" "pusher.sh")
+DEPENDENCY_FILENAMES=("logHelper.sh" "cronHelper.sh" "httpClient.sh" "poller.sh")
 DEBUG=true
 
 # Fetches a URL to stdout using the first available of curl, wget.
@@ -57,8 +58,9 @@ function logBold {
 ## register the machine with dotdeploy
 function registerMachine {
     logInfo "Registering this computer on dotdeploy ... "
-    FETCH_RESULT=$(fetchUrl "$DOTDEPLOY_URL/machine/index.html")
-    
+    #FETCH_RESULT=$(postData  "$DOTDEPLOY_URL/machine/$MACHINE_UUID/register")
+    FETCH_RESULT="true" # todo *actually* register the machine
+    sleep 2
     if [[ $FETCH_RESULT = "true" ]]
     then
         logSuccess "[ok]"
@@ -107,9 +109,14 @@ function fetchDependencies {
     for fileName in "${DEPENDENCY_FILENAMES[@]}"
     do
         echo -n "    fetching $fileName ... " 
-        fetchUrl "$DOTDEPLOY_URL/static/lib/$fileName" > "$DOTDEPLOY_DIRECTORY/lib/$fileName"
-        chmod +x "$DOTDEPLOY_DIRECTORY/lib/$fileName"
-        logSuccess " [ok]"
+        fetchUrl "$DOTDEPLOY_URL/static/lib/$fileName" > "$DOTDEPLOY_DIRECTORY/lib/$fileName" 2> /dev/null
+        if [ $? -eq 0 ]
+        then 
+            chmod +x "$DOTDEPLOY_DIRECTORY/lib/$fileName"
+            logSuccess " [ok]"
+        else 
+            logError " [error]"
+        fi
         echo 
     done     
     echo

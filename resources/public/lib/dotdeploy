@@ -27,10 +27,10 @@ Description:
 Commands: 
     $SCRIPT_NAME \e[01;1mhelp\e[00m - Displays $0 help.
     $SCRIPT_NAME \e[01;1madd <filename> [profile]\e[00m - Adds a file for remote tracking.
-    $SCRIPT_NAME \e[01;1mupdate\e[00m  - Updates all files.. 
+    $SCRIPT_NAME \e[01;1mupdate\e[00m  - Updates all files. 
     $SCRIPT_NAME \e[01;1mstatus [filename]\e[00m  - Prints tracking status of this machine or file. 
     $SCRIPT_NAME \e[01;1muninstall\e[00m - Stops tracking this machine and restores original files.
-    $SCRIPT_NAME \e[01;1mname\e[00m (implement?)"
+    $SCRIPT_NAME \e[01;1mname [name]\e[00m - Sets the name of this machine."
 }
 
 
@@ -79,8 +79,6 @@ case "$command" in
         ;;
     
     status)
-        
-    
         metaData=$(getMetadataForPath $2)
         
         if [ $? -eq 0 ]
