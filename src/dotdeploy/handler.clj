@@ -26,6 +26,7 @@
 (defroutes static-file-routes
            "Server static files outside of the API functions"
            (route/resources "/" {:root "public/static"})
+           (route/resources "/lib" {:root "public/lib"})
            (route/resources "/static/js" {:root "public/js"})
            (route/resources "/static/css" {:root "public/css"})
            (route/resources "/static/font" {:root "public/font"}))
