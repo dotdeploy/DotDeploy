@@ -1,5 +1,12 @@
 <div class="profile browser">
-    <h1>Your Profiles</h1>
+    <h1>
+        Your Profiles
+        <a href="#/profiles/new"
+           class="btn btn-success">
+            <i class="fa fa-plus-square"></i>
+            New Profile
+        </a>
+    </h1>
     <ul>
         <li ng-repeat="profile in profiles.list">
             <a href="/#profiles/{{profile['profile-id']}}">{{profile.name}}</a>

@@ -42,3 +42,14 @@ header {
         }
     }
 }
+
+.files {
+    label {
+        width: 100%;
+
+        input {
+            font-family: monospace;
+            width: 100%
+        }
+    }
+}
