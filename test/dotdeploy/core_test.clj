@@ -1,6 +1,6 @@
-(ns localwebapp.core-test
+(ns dotdeploy.core-test
   (:require [clojure.test :refer :all]
-            [localwebapp.core :refer :all]))
+            [dotdeploy.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

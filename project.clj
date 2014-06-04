@@ -1,21 +1,24 @@
 (defproject dotdeploy "0.1.0-SNAPSHOT"
-  :description "Synchronize dotfiles on all your computers"
+  :description "API for the DotDeploy website. Synchronize your dotfiles across all your computer"
   :url "http://dotdeploy.works"
   :license {:name "Apache 2 License"
             :url "http://www.apache.org/licenses"}
-  :dependencies [[org.clojure/clojure "1.6.0"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
                  [compojure "1.1.8"]
+                 [metosin/compojure-api "0.11.5"]
+                 [metosin/ring-swagger-ui "2.0.16-2"]
+                 [metosin/ring-http-response "0.4.0"]
+                 [clj-time "0.7.0"]
                  [ring-middleware-format "0.3.2"]
                  [ring/ring-json "0.3.1"]
                  [com.taoensso/timbre "3.2.1"]
                  [com.novemberain/monger "2.0.0-rc1"]
                  [com.novemberain/validateur "2.1.0"]
                  [slingshot "0.10.3"]
-                 [clj-http "0.9.1"]
+                 [clj-http "0.9.2"]
                  [uri "1.1.0"]
-                 [org.clojure/data.json "0.2.4"]]
-  :plugins [[lein-ring "0.8.7"]]
+                 [org.clojure/data.json "0.2.4"]
+                 [liberator "0.11.0"]]
+  :plugins [[lein-ring "0.8.10"]]
   :ring {:handler dotdeploy.handler/app}
-  :profiles
-  {:dev
-    {:dependencies [[ring-mock "0.1.5"]]}})
+  :profiles {:dev {:dependencies [[ring-mock "0.1.5"]]}})
