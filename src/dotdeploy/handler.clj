@@ -16,6 +16,7 @@
              :description "A user of the DotDeploy service"
              (GET* "/user" []
                    :query-params [accesstoken :- String]
+                   :return User
                    :summary "Get details about the user which this token describes"
                    (ok (user/get-or-create-user (auth/authorize-google-code accesstoken)))))
   (swaggered "token"

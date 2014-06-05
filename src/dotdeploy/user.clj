@@ -3,8 +3,10 @@
             [monger.collection :as mc]
             [monger.result :refer [ok?]]
             [monger.util :as util]
+            [monger.conversion :refer :all]
             [schema.core :as s]
             [clj-time.core :as time]
+            [clj-time.format :as time-format]
             [dotdeploy.auth :as auth]
             [dotdeploy.models :as models]))
 
@@ -27,32 +29,51 @@
 
 ;;;; User Operations
 
-(def blank-user
-  {:created-on (time/now)
-   :machines []
-   :files []
-   :tokens []})
+(defn date->string
+  [datetime]
+  (time-format/unparse (time-format/formatters :date-time) datetime))
+
+(defn string->date
+  [datetime]
+  (time-format/parse (time-format/formatters :date-time) datetime))
+
+(defn serialize-user
+  "Make a User model safe to insert into the database"
+  [user]
+  (assoc user :created-on (date->string (:created-on user))))
+
+(defn deserialize-user
+  "Take a user from the database and turn it into a User object"
+  [user]
+  (-> user
+      (dissoc :_id)
+      (assoc :created-on (string->date (:created-on user)))))
 
 (defn get-user
   "Retrieve a User from the database by user-id"
   [user-id]
-  (mc/find-one-as-map (get-db) (:users-coll mongo-options)
-                      {:user-id user-id}))
+  (if-let [user (mc/find-one-as-map (get-db) (:users-coll mongo-options)
+                                    {:user-id user-id})]
+    (deserialize-user user)))
 
 (defn create-user
   "Place a new User in the database. Must be a valid User, returns True if successfully inserted, otherwise False"
   [user]
-  (s/validate models/User user)
-  (ok? (mc/insert (get-db) (:users-coll mongo-options) user)))
+  (ok? (mc/insert (get-db)
+                  (:users-coll mongo-options)
+                  (serialize-user (s/validate models/User user)))))
 
 (defn get-or-create-user
   "Retrieve a user from the database if it exists, otherwise create a new one"
   [user-id]
   (if-let [user (get-user user-id)]
     user
+    ; TODO: User name should not be hard-coded
     (let [profile {:name "Tony Grosinger"}
-          user (-> blank-user
-                   (assoc :user-id user-id)
-                   (assoc :name (:name profile)))]
-      (create-user user)
-      user)))
+          user  {:created-on (time/now)
+                 :user-id user-id
+                 :name (:name profile)
+                 :machines []
+                 :files []
+                 :tokens []}]
+      (create-user user))))

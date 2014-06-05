@@ -3,7 +3,7 @@
   :url "http://dotdeploy.works"
   :license {:name "Apache 2 License"
             :url "http://www.apache.org/licenses"}
-  :dependencies [[org.clojure/clojure "1.5.1"]
+  :dependencies [[org.clojure/clojure "1.6.0"]
                  [compojure "1.1.8"]
                  [metosin/compojure-api "0.11.5"]
                  [metosin/ring-swagger-ui "2.0.16-2"]
