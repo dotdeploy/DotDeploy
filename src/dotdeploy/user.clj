@@ -68,12 +68,14 @@
   [user-id]
   (if-let [user (get-user user-id)]
     user
-    ; TODO: User name should not be hard-coded
-    (let [profile {:name "Tony Grosinger"}
+    (let [profile (auth/get-user-profile user-id)
+          name (str (-> profile :name :givenName) " " (-> profile :name :familyName))
           user  {:created-on (time/now)
                  :user-id user-id
-                 :name (:name profile)
+                 :name name
                  :machines []
                  :files []
                  :tokens []}]
-      (create-user user))))
+      (if (create-user user)
+        user
+        (throw (.Exception "Could not create user"))))))

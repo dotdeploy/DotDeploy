@@ -18,7 +18,9 @@
                    :query-params [accesstoken :- String]
                    :return User
                    :summary "Get details about the user which this token describes"
-                   (ok (user/get-or-create-user (auth/authorize-google-code accesstoken)))))
+                   (let [user-id (auth/authorize-google-code accesstoken)
+                         user (user/get-or-create-user user-id)]
+                     (ok user))))
   (swaggered "token"
              :description "A code to add a new machine to a user"
              (context "/token" []

@@ -17,8 +17,7 @@
                  [slingshot "0.10.3"]
                  [clj-http "0.9.2"]
                  [uri "1.1.0"]
-                 [org.clojure/data.json "0.2.4"]
-                 [liberator "0.11.0"]]
+                 [org.clojure/data.json "0.2.4"]]
   :plugins [[lein-ring "0.8.10"]]
   :ring {:handler dotdeploy.handler/app}
   :profiles {:dev {:dependencies [[ring-mock "0.1.5"]]}})
