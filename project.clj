@@ -20,4 +20,5 @@
                  [org.clojure/data.json "0.2.4"]]
   :plugins [[lein-ring "0.8.10"]]
   :ring {:handler dotdeploy.handler/app}
-  :profiles {:dev {:dependencies [[ring-mock "0.1.5"]]}})
+  :profiles {:dev {:dependencies [[ring-mock "0.1.5"]
+                                  [midje "1.6.3"]]}})

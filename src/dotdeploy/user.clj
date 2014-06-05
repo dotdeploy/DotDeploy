@@ -3,7 +3,6 @@
             [monger.collection :as mc]
             [monger.result :refer [ok?]]
             [monger.util :as util]
-            [monger.conversion :refer :all]
             [schema.core :as s]
             [clj-time.core :as time]
             [clj-time.format :as time-format]
@@ -69,13 +68,13 @@
   (if-let [user (get-user user-id)]
     user
     (let [profile (auth/get-user-profile user-id)
-          name (str (-> profile :name :givenName) " " (-> profile :name :familyName))
-          user  {:created-on (time/now)
-                 :user-id user-id
-                 :name name
-                 :machines []
-                 :files []
-                 :tokens []}]
+          name    (str (-> profile :name :givenName) " " (-> profile :name :familyName))
+          user    {:created-on (time/now)
+                   :user-id user-id
+                   :name name
+                   :machines []
+                   :files []
+                   :tokens []}]
       (if (create-user user)
         user
         (throw (.Exception "Could not create user"))))))

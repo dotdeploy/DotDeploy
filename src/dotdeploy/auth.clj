@@ -18,7 +18,8 @@
 (defn authorize-google-code
   "Return the user-id of the access token if valid, otherwise Nil"
   [accesstoken]
-  (let [valid ((http/get (str "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" accesstoken) {:as :json}) :body)]
+  (let [valid ((http/get (str "https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=" accesstoken)
+                         {:as :json}) :body)]
     ;; FIXME: I believe thise will not even get to here if the token is invalid)
 
     (if (not= (:audience valid) (:client-id google-oauth2))
