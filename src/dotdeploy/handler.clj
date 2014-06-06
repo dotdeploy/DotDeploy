@@ -4,7 +4,8 @@
             [dotdeploy.models :refer :all]
             [clj-time.coerce :as tc]
             [dotdeploy.auth :as auth]
-            [dotdeploy.user :as user]))
+            [dotdeploy.user :as user]
+            [dotdeploy.token :as token]))
 
 (defroutes* legacy-route)
 
@@ -29,9 +30,16 @@
                             :summary "Retrieve details about a given token"
                             (ok token-id))
                       (POST* "/" []
-                             :body [token NewToken {:description "2014-02-18T12:01:20.147Z"}]
+                             :query-params [accesstoken :- String]
+                             :body [newtoken NewToken]
                              :return Token
-                             (ok (assoc token :token-id "New ID"))))))
+                             (let [user-id (auth/authorize-google-code accesstoken)]
+                               (ok (token/create-token user-id newtoken)))))))
 
 (def app
   api)
+
+
+
+
+

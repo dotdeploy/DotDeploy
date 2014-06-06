@@ -6,7 +6,7 @@
   "A code which can be used to add a new machine to a user"
   {:token-id s/Str
    :created-on org.joda.time.DateTime
-   (s/optional-key :remaining-uses) s/Int
+   (s/optional-key :uses) s/Int
    (s/optional-key :expires-on) org.joda.time.DateTime
    (s/optional-key :description) s/Str})
 
