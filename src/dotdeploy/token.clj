@@ -1,6 +1,8 @@
 (ns dotdeploy.token
   (:require [dotdeploy.models :as models]
             [dotdeploy.user :as user]
+            [dotdeploy.data :as data]
+            [monger.collection :as mc]
             [clj-time.core :as time]
             [schema.core :as s]))
 
@@ -27,9 +29,54 @@
         new-token (-> valid-args
                       (assoc :created-on (time/now))
                       (assoc :token-id (uuid)))]
+    ;; TODO: Add stronger validation to make sure the required keys are present
     (if (user/update-user user-id {"$push" {:tokens (s/validate models/Token new-token)}})
       new-token
       (throw (Exception. "Unable to create new token")))))
+
+(defn get-tokens
+  "Retrieve a list of all Tokens for a User with a given user-id"
+  [user-id]
+  (if-let [user (user/get-user user-id)]
+    (:tokens user)
+    []))
+
+(defn get-valid-tokens
+  "Retrieve a list of only valid Tokens for a User with a given user-id"
+  [user-id]
+  (if-let [tokens (get-tokens user-id)]
+    (filter valid? tokens)))
+
+(defn get-token
+  "Get a Token by the token-id"
+  [token-id]
+  (if-let [user (mc/find-one-as-map (data/get-db)
+                                    (:users-coll data/mongo-options)
+                                    {:tokens.token-id token-id})]
+    (first (filter #(= token-id (:token-id %)) (:tokens user)))))
+
+(defn expired?
+  "Return true if the Token has expired"
+  [token]
+  (if-let [expiration (:expires-on token)]
+    (and (not (nil? expiration))
+             (time/before? expiration (time/now)))
+    false))
+
+(defn fully-used?
+  "Return true if the Token has no more uses left"
+  [token]
+  (if-let [uses (:uses token)]
+    (and (not (nil? uses))
+         (> 1 uses))
+    false))
+
+(defn valid?
+  "Return true if the Token is correctly formed, not expired, and not fully used"
+  [token]
+  (and (s/validate models/Token token)
+       (not (or (expired? token)
+                (fully-used? token)))))
 
 
 

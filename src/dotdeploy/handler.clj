@@ -26,9 +26,12 @@
              :description "A code to add a new machine to a user"
              (context "/token" []
                       legacy-route ;; For some reason being in a context doesn't work without this
-                      (GET* "/:token-id" [token-id]
-                            :summary "Retrieve details about a given token"
-                            (ok token-id))
+                      (GET* "/" []
+                            :summary "Retrieve a list of all tokens for a user"
+                            :query-params [accesstoken :- String]
+                            :return [Token]
+                            (let [user-id (auth/authorize-google-code accesstoken)]
+                              (ok (token/get-tokens user-id))))
                       (POST* "/" []
                              :query-params [accesstoken :- String]
                              :body [newtoken NewToken]
