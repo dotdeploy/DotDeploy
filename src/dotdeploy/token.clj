@@ -18,6 +18,13 @@
   []
   (str (java.util.UUID/randomUUID)))
 
+(defn token->user
+  "Retrieve the User which owns a Token with the given token-id"
+  [token-id]
+  (mc/find-one-as-map (data/get-db)
+                      (:users-coll data/mongo-options)
+                      {:tokens.token-id token-id}))
+
 (defn create-token
   "Create an return a new token for a user with given user-id.
    Options parameter should be a map with one or both of the following keys:
@@ -33,6 +40,13 @@
     (if (user/update-user user-id {"$push" {:tokens (s/validate models/Token new-token)}})
       new-token
       (throw (Exception. "Unable to create new token")))))
+
+(defn delete-token
+  "Delete a Token from a User and return the list of valid tokens"
+  [token-id]
+  (if-let [user (token->user token-id)]
+    (if (user/update-user (:user-id user) {"$pull" {:tokens {:token-id token-id}}})
+      (get-valid-tokens (:user-id user)))))
 
 (defn get-tokens
   "Retrieve a list of all Tokens for a User with a given user-id"
@@ -50,9 +64,7 @@
 (defn get-token
   "Get a Token by the token-id"
   [token-id]
-  (if-let [user (mc/find-one-as-map (data/get-db)
-                                    (:users-coll data/mongo-options)
-                                    {:tokens.token-id token-id})]
+  (if-let [user (token->user token-id)]
     (first (filter #(= token-id (:token-id %)) (:tokens user)))))
 
 (defn expired?
