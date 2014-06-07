@@ -5,7 +5,8 @@
             [clj-time.coerce :as tc]
             [dotdeploy.auth :as auth]
             [dotdeploy.user :as user]
-            [dotdeploy.token :as token]))
+            [dotdeploy.token :as token]
+            [dotdeploy.machine :as machine]))
 
 (defroutes* legacy-route)
 
@@ -29,6 +30,7 @@
                       legacy-route ;; For some reason being in a context doesn't work without this
                       (GET* "/" []
                             :summary "Retrieve a list of all tokens for a user"
+                            ;; TODO: Add an optional parameter to only retrieve valid tokens
                             :query-params [accesstoken :- String]
                             :return [Token]
                             (let [user-id (auth/authorize-google-code accesstoken)]
@@ -41,11 +43,23 @@
                              (let [user-id (auth/authorize-google-code accesstoken)]
                                (created (token/create-token user-id newtoken))))
                       (DELETE* "/" []
-                               :summary "Delete a token by the token-id and retrive a list of the remaining valid tokens"
+                               :summary "Delete a token by the token-id and retrive a list
+                                         of the remaining valid tokens"
                                :query-params [accesstoken :- String
                                               token-id    :- String]
                                :return [Token]
-                               (ok (token/delete-token token-id))))))
+                               (ok (token/delete-token token-id)))))
+  (swaggered "machine"
+             :description "A user's computer which can receive/update dotfiles"
+             (context "/machine" []
+                      legacy-route ;; For some reason being in a context doesn't work without this
+                      (GET* "/" []
+                            :summary "Retrieve a list of all machines for a user"
+                            ;; TODO: Add an optional parameter to only retrieve active machines
+                            :query-params [accesstoken :- String]
+                            :return [Machine]
+                            (let [user-id (auth/authorize-google-code accesstoken)]
+                              (ok (machine/get-machines user-id)))))))
 
 (def app
   api)
