@@ -23,7 +23,7 @@
    :profiles [s/Str]
    :created-on org.joda.time.DateTime
    :last-checkin org.joda.time.DateTime
-   :name s/Str
+   (s/optional-key :name) s/Str
    :hostname s/Str
    (s/optional-key :description) s/Str})
 

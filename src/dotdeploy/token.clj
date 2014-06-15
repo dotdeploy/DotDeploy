@@ -95,3 +95,24 @@
   (if-let [user (token->user token-id)]
     (if (user/update-user (:user-id user) {"$pull" {:tokens {:token-id token-id}}})
       (get-valid-tokens (:user-id user)))))
+
+(defn decrement-uses
+  "Consumes one use from a token, if uses is set"
+  [token]
+  (if-let [uses (:uses token)]
+    (if (= 0 (dec uses))
+      (delete-token (:token-id token))
+      (data/update {:tokens.token-id (:token-id token)}
+                   {"$set" {:tokens.$.uses (dec uses)}}))))
+
+(defn use-token
+  "Check that the token is valid, decrement the number of uses this token has left,
+   delete if if fully consumed. If everything is valid, return the description
+   associated with the token to be bound to the new machine."
+  [token-id]
+  (if-let [token (get-token token-id)]
+    (if (valid? token)
+      (do (decrement-uses token)
+          {:description (:description token) :user (token->user token-id)})
+      (throw (Exception. "Token is invalid")))
+    (throw (Exception. "Token is invalid"))))
