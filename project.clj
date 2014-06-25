@@ -5,7 +5,7 @@
             :url "http://www.apache.org/licenses"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [compojure "1.1.8"]
-                 [metosin/compojure-api "0.11.6"]
+                 [metosin/compojure-api "0.13.1"]
                  [metosin/ring-swagger-ui "2.0.16-2"]
                  [metosin/ring-http-response "0.4.0"]
                  [clj-time "0.7.0"]

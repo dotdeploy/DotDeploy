@@ -27,3 +27,10 @@
 (let [db (get-db)]
   (if-not (mc/exists? db (:users-coll mongo-options))
     (mc/create db (:users-coll mongo-options) {:capped false})))
+
+;;;; Somewhat General Utilities
+
+(defn uuid
+  "Generate a random UUID using the built in Java library"
+  []
+  (str (java.util.UUID/randomUUID)))

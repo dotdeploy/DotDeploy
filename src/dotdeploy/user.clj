@@ -37,11 +37,7 @@
   {\"$push\" {:tokens \"a-new-token\"}}"
   ([user-id updates] (update-user user-id updates false))
   ([user-id updates upsert]
-    (ok? (mc/update (data/get-db)
-                    (:users-coll data/mongo-options)
-                    {:user-id user-id}
-                    updates
-                    {:upsert upsert}))))
+     (data/update {:user-id user-id} updates upsert)))
 
 (defn get-or-create-user
   "Retrieve a user from the database if it exists, otherwise create a new one"

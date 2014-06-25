@@ -1,11 +1,14 @@
 (ns dotdeploy.handler
   (:require [compojure.api.sweet :refer :all]
+            [compojure.api.meta :as meta]
             [ring.util.http-response :refer :all]
             [dotdeploy.models :refer :all]
             [clj-time.coerce :as tc]
+            [schema.core :as s]
             [dotdeploy.auth :as auth]
             [dotdeploy.user :as user]
             [dotdeploy.token :as token]
+            [dotdeploy.file :as file]
             [dotdeploy.machine :as machine]))
 
 (defroutes* legacy-route)
@@ -59,7 +62,42 @@
                             :query-params [accesstoken :- String]
                             :return [Machine]
                             (let [user-id (auth/authorize-google-code accesstoken)]
-                              (ok (machine/get-machines user-id)))))))
+                              (ok (machine/get-machines user-id))))
+                      (POST* "/" []
+                             :summary "Create a new machine based on the provided token-id"
+                             :query-params [token-id   :- String
+                                            hostname   :- String
+                                            machine-id :- String]
+                             ;:return Machine
+                             ;; FIXME: Can not specify return type here because invalid requests throw exceptions which return as a string. Can not see the exception if trying to return a Machine
+                             (ok (machine/create-machine machine-id hostname token-id)))
+                      (DELETE* "/" []
+                              :summary "Delete a machine by the machine-id and retrieve a list
+                                        of the remaining valid tokens"
+                              :query-params [accesstoken :- String
+                                             machine-id  :- String]
+                              :return [Machine]
+                              (let [user-id (auth/authorize-google-code accesstoken)]
+                                (ok (machine/delete-machine machine-id user-id))))))
+  (swaggered "file"
+             :description "A specific dotfile for a user"
+             (context "/file" []
+                      legacy-route ;; For some reason being in a context doesn't work without this
+                      (GET* "/:file-id" [file-id]
+                            :summary "Retrieve the latest version of a file by id"
+                            ;; TODO: Add an optional parameter to retrieve a specific version
+                            :query-params [accesstoken :- String]
+                            (let [user-id (auth/authorize-google-code accesstoken)]
+                              (ok (file/get-file-binary user-id file-id))))
+                      (POST* "/" []
+                             :summary "Create a new file for the user with the provided accesstoken"
+                             :query-params [accesstoken :- String
+                                            path   :- String
+                                            sha256 :- String]
+                             :body [body s/Str]
+                             ;(let [user-id (auth/authorize-google-code accesstoken)]
+                               ;(ok (file/create-file user-id path sha256 content)))
+                             (ok "test")))))
 
 (def app
   api)

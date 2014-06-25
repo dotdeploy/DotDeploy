@@ -47,11 +47,6 @@
   [map keys]
   (into {} (filter #((key %) keys) map)))
 
-(defn uuid
-  "Generate a random UUID using the built in Java library"
-  []
-  (str (java.util.UUID/randomUUID)))
-
 ;;;; Token Manipulation Functions
 
 (defn create-token
@@ -64,7 +59,7 @@
   (let [valid-args (filter-keys options #{:expires-on :uses :description})
         new-token (-> valid-args
                       (assoc :created-on (time/now))
-                      (assoc :token-id (uuid)))]
+                      (assoc :token-id (data/uuid)))]
     ;; TODO: Add stronger validation to make sure the required keys are present
     (if (user/update-user user-id {"$push" {:tokens (s/validate models/Token new-token)}})
       new-token
