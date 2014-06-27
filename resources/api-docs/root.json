@@ -1,0 +1,29 @@
+{
+    "apiVersion": "0.0.1",
+    "swaggerVersion": "1.2",
+    "apis": [
+        {
+            "path": "/user",
+            "description": "Operations about user"
+        },
+        {
+            "path": "/token",
+            "description": "Operations about token"
+        },
+        {
+            "path": "/machine",
+            "description": "Operations about machine"
+        },
+        {
+            "path": "/file",
+            "description": "Operations about file"
+        }
+    ],
+    "info": {
+        "title": "DotDeploy",
+        "description": "This is the API explorer for <a href=\"http://dotdeploy.works\">DotDeploy</a>. The api key should be a valid Google access_token which can be generated using the Google OAuth Playground",
+        "contact": "tony@grosinger.net",
+        "license": "Apache 2.0",
+        "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+}

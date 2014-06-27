@@ -1,0 +1,54 @@
+{
+    "apiVersion": "0.0.1",
+    "swaggerVersion": "1.2",
+    "basePath": "http://api.dotdeploy.works",
+    "resourcePath": "/machine",
+    "produces": ["application/json"],
+    "apis": [ ],
+    "models": {
+        "Machine": {
+            "id": "Machine",
+            "required": [
+                "machine-id",
+                "active",
+                "profiles",
+                "created-on",
+                "last-checkin",
+                "hostname"
+            ],
+            "properties": {
+                "machine-id": {
+                    "type": "string"
+                },
+                "active": {
+                    "type": "boolean",
+                    "description": "A deleted or deauthorized machine will be marked inactive"
+                },
+                "profiles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "created-on": {
+                    "type": "dateTime"
+                },
+                "last-checkin": {
+                    "type": "dateTime",
+                    "description": "The last time this machine checked for updates or performed any action using its token"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "A friendly name other than the hostname"
+                },
+                "hostname": {
+                    "type": "string",
+                    "description": "The hostname as provided by this machine at creation time"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

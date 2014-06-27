@@ -1,0 +1,225 @@
+{
+    "apiVersion": "0.0.1",
+    "swaggerVersion": "1.2",
+    "basePath": "http://api.dotdeploy.works",
+    "resourcePath": "/user",
+    "produces": ["application/json"],
+    "apis": [
+        {
+            "path": "/user",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Retrieve all known information about a user which cooresponds with the provided accesstoken",
+                    "type": "User",
+                    "nickname": "findUser",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "accesstoken",
+                            "description": "Token provided from authentication with Google OAuth",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "query"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 500,
+                            "message": "This is temporary and likely means your accesstoken is invalid."
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "models": {
+        "Machine": {
+            "id": "Machine",
+            "required": [
+                "machine-id",
+                "active",
+                "profiles",
+                "created-on",
+                "last-checkin",
+                "hostname"
+            ],
+            "properties": {
+                "machine-id": {
+                    "type": "string"
+                },
+                "active": {
+                    "type": "boolean",
+                    "description": "A deleted or deauthorized machine will be marked inactive"
+                },
+                "profiles": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "created-on": {
+                    "type": "dateTime"
+                },
+                "last-checkin": {
+                    "type": "dateTime",
+                    "description": "The last time this machine checked for updates or performed any action using its token"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "A friendly name other than the hostname"
+                },
+                "hostname": {
+                    "type": "string",
+                    "description": "The hostname as provided by this machine at creation time"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "FileRevision": {
+            "id": "FileRevision",
+            "required": [
+                "created-on",
+                "grid-id",
+                "sha256",
+                "revision-id"
+            ],
+            "properties": {
+                "created-on": {
+                    "type": "dateTime"
+                },
+                "grid-id": {
+                    "type": "string",
+                    "description": "The location of this file in GridFS"
+                 },
+                "sha256": {
+                    "type": "string",
+                    "description": "The SHA256 hash of the body of this file"
+                },
+                "revision-id": {
+                    "type": "int",
+                    "description": "An incrementing integrer representing the current iteration of this file"
+                 }
+            }
+        },
+        "File": {
+            "id": "File",
+            "required": [
+                "file-id",
+                "path",
+                "profiles",
+                "type",
+                "active",
+                "revisions",
+                "public",
+                "shared-users"
+            ],
+            "properties": {
+                "file-id": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string",
+                    "description": "The path where this file should be located on a machine"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The type of dotfile this file represents. Ex: bashrc, zshrc, gitconfig"
+                },
+                "active": {
+                    "type": "boolean",
+                    "description": "A deleted file will be set to inactive"
+                },
+                "revisions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "FileRevision"
+                    }
+                },
+                "public": {
+                    "type": "boolean",
+                    "description": "If true, anyone with the link can see this file"
+                },
+                "shared-users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "forked-from": {
+                    "type": "string",
+                    "description": "If set, this indicates the file-id this file was copied from"
+                }
+            }
+        },
+        "Token": {
+            "id": "Token",
+            "required": [
+                "token-id",
+                "created-on"
+            ],
+            "properties": {
+                "token-id": {
+                    "type": "string"
+                },
+                "created-on": {
+                    "type": "dateTime"
+                },
+                "uses": {
+                    "type": "int",
+                    "description": "The number of times this token can be used before being invalid"
+                },
+                "expires-on": {
+                    "type": "dateTime",
+                    "description": "The date and time when this token will no longer be valid"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "User": {
+            "id": "User",
+            "required": [
+                "user-id",
+                "created-on",
+                "name",
+                "machines",
+                "files",
+                "tokens"
+            ],
+            "properties": {
+                "user-id": {
+                    "type": "string"
+                },
+                "created-on": {
+                    "type": "dateTime"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Friendly name of the user"
+                },
+                "machines": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "Machine"
+                    }
+                },
+                "files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "File"
+                    }
+                },
+                "tokens": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "Token"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,86 @@
+{
+    "apiVersion": "0.0.1",
+    "swaggerVersion": "1.2",
+    "basePath": "http://api.dotdeploy.works",
+    "resourcePath": "/file",
+    "produces": ["application/json"],
+    "apis": [ ],
+    "models": {
+        "FileRevision": {
+            "id": "FileRevision",
+            "required": [
+                "created-on",
+                "grid-id",
+                "sha256",
+                "revision-id"
+            ],
+            "properties": {
+                "created-on": {
+                    "type": "dateTime"
+                },
+                "grid-id": {
+                    "type": "string",
+                    "description": "The location of this file in GridFS"
+                 },
+                "sha256": {
+                    "type": "string",
+                    "description": "The SHA256 hash of the body of this file"
+                },
+                "revision-id": {
+                    "type": "int",
+                    "description": "An incrementing integrer representing the current iteration of this file"
+                 }
+            }
+        },
+        "File": {
+            "id": "File",
+            "required": [
+                "file-id",
+                "path",
+                "profiles",
+                "type",
+                "active",
+                "revisions",
+                "public",
+                "shared-users"
+            ],
+            "properties": {
+                "file-id": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string",
+                    "description": "The path where this file should be located on a machine"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "The type of dotfile this file represents. Ex: bashrc, zshrc, gitconfig"
+                },
+                "active": {
+                    "type": "boolean",
+                    "description": "A deleted file will be set to inactive"
+                },
+                "revisions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "FileRevision"
+                    }
+                },
+                "public": {
+                    "type": "boolean",
+                    "description": "If true, anyone with the link can see this file"
+                },
+                "shared-users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "forked-from": {
+                    "type": "string",
+                    "description": "If set, this indicates the file-id this file was copied from"
+                }
+            }
+        }
+    }
+}

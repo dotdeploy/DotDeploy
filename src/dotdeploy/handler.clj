@@ -3,7 +3,9 @@
             [compojure.core :refer :all]
             [compojure.handler :refer [api]]
             [ring.middleware.format-response :refer [wrap-restful-response]]
+            [ring.util.response :refer [redirect file-response]]
             [ring.middleware.json :refer [wrap-json-body]]
+            [ring.middleware.resource :refer [wrap-resource]]
             [dotdeploy.models :refer :all]
             [clj-time.coerce :as tc]
             [schema.core :as s]
@@ -74,14 +76,19 @@
                     (http/options [:options :get :post :delete])))
   (context "/file" []
            (OPTIONS "/" []
-                    (http/options [:options :get :post]))))
+                    (http/options [:options :get :post])))
+  (context "/api-docs" []
+           (GET "/" [] (file-response "resources/api-docs/root.json"))
+           (GET "/:resource" [resource] (file-response (str "resources/api-docs/" resource ".json")))))
 
 ;; TODO: Catch exceptions such as validation exceptions and give helpful error messages
 
 (def app
-  (api (routes
-         (ANY "*" [] other-routes)
-         (ANY "*" [] authenticated-routes))))
+  (-> (api (routes
+             (GET "/" [] (redirect "/index.html"))
+             (ANY "*" [] other-routes)
+             (ANY "*" [] authenticated-routes)))
+      (wrap-resource "public")))
 
 
 
