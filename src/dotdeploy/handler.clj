@@ -1,7 +1,7 @@
 (ns dotdeploy.handler
-  (:require [clojure.walk :refer [keywordize-keys]][compojure.core :refer :all]
+  (:require [clojure.walk :refer [keywordize-keys]]
+            [compojure.core :refer :all]
             [compojure.handler :refer [api]]
-            [ring.util.http-response :refer :all]
             [ring.middleware.format-response :refer [wrap-restful-response]]
             [ring.middleware.json :refer [wrap-json-body]]
             [dotdeploy.models :refer :all]

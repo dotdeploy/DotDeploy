@@ -5,10 +5,8 @@
             :url "http://www.apache.org/licenses"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [compojure "1.1.8"]
-                 [metosin/compojure-api "0.13.1"]
-                 [metosin/ring-swagger-ui "2.0.16-2"]
-                 [metosin/ring-http-response "0.4.0"]
                  [clj-time "0.7.0"]
+                 [prismatic/schema "0.2.4"]
                  [ring-middleware-format "0.3.2"]
                  [ring/ring-json "0.3.1"]
                  [com.taoensso/timbre "3.2.1"]
@@ -20,5 +18,4 @@
                  [org.clojure/data.json "0.2.5"]]
   :plugins [[lein-ring "0.8.10"]]
   :ring {:handler dotdeploy.handler/app}
-  :profiles {:dev {:dependencies [[ring-mock "0.1.5"]
-                                  [midje "1.6.3"]]}})
+  :profiles {:dev {:dependencies [[ring-mock "0.1.5"]]}})
