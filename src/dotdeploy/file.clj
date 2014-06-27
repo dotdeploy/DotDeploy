@@ -64,10 +64,9 @@
 (defn get-file-binary
   "Retrieve a file by version, or the latest if no version is specified.
    Will validate that the file is owned by the user-id provided"
-  ([user-id file-id] (get-file-binary user-id file-id "latest"))
+  ([user-id file-id] (get-file-binary user-id file-id (:revision-id (get-latest-version (get-file-meta user-id file-id)))))
   ([user-id file-id version]
-     ;; TODO: Finish this
-     ))
+   (gridfs/retrieve-string user-id file-id version)))
 
 (defn update-file
   "Upload a new FileRevision to an existing File"

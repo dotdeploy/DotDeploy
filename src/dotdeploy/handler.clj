@@ -1,106 +1,87 @@
 (ns dotdeploy.handler
-  (:require [compojure.api.sweet :refer :all]
-            [compojure.api.meta :as meta]
+  (:require [clojure.walk :refer [keywordize-keys]][compojure.core :refer :all]
+            [compojure.handler :refer [api]]
             [ring.util.http-response :refer :all]
+            [ring.middleware.format-response :refer [wrap-restful-response]]
+            [ring.middleware.json :refer [wrap-json-body]]
             [dotdeploy.models :refer :all]
             [clj-time.coerce :as tc]
             [schema.core :as s]
+            [dotdeploy.http :as http]
             [dotdeploy.auth :as auth]
             [dotdeploy.user :as user]
             [dotdeploy.token :as token]
             [dotdeploy.file :as file]
             [dotdeploy.machine :as machine]))
 
-(defroutes* legacy-route)
+;; TODO: Modify this middleware to also intelligently handly machine-ids
+(defn wrap-authentication
+  "Convert accesstokens into a user-id"
+  [handler]
+  (fn [req]
+    (if-let [accesstoken (:accesstoken (:params req))]
+      (handler (assoc-in req [:params :user-id] (auth/authorize-google-code accesstoken)))
+      (throw (Exception. "There is no accesstoken!")))))
 
-(defapi api
-  (swagger-ui)
-  (swagger-docs
-    :title "DotDeploy API")
-  (swaggered "user"
-             :description "A user of the DotDeploy service"
-             (GET* "/user" []
-                   :query-params [accesstoken :- String]
-                   :return User
-                   :summary "Get details about the user which this token describes"
-                   (let [user-id (auth/authorize-google-code accesstoken)
-                         user (user/get-or-create-user user-id)]
-                     (ok user))))
-  (swaggered "token"
-             ; FIXME: Umm, I think anyone can do anything, as long as they have a valid access-token
-             :description "A code to add a new machine to a user"
-             (context "/token" []
-                      legacy-route ;; For some reason being in a context doesn't work without this
-                      (GET* "/" []
-                            :summary "Retrieve a list of all tokens for a user"
-                            ;; TODO: Add an optional parameter to only retrieve valid tokens
-                            :query-params [accesstoken :- String]
-                            :return [Token]
-                            (let [user-id (auth/authorize-google-code accesstoken)]
-                              (ok (token/get-tokens user-id))))
-                      (POST* "/" []
-                             :summary "Create a new token for the user with the provided accesstoken"
-                             :query-params [accesstoken :- String]
-                             :body [newtoken NewToken]
-                             :return Token
-                             (let [user-id (auth/authorize-google-code accesstoken)]
-                               (created (token/create-token user-id newtoken))))
-                      (DELETE* "/" []
-                               :summary "Delete a token by the token-id and retrive a list
-                                         of the remaining valid tokens"
-                               :query-params [accesstoken :- String
-                                              token-id    :- String]
-                               :return [Token]
-                               (ok (token/delete-token token-id)))))
-  (swaggered "machine"
-             :description "A user's computer which can receive/update dotfiles"
-             (context "/machine" []
-                      legacy-route ;; For some reason being in a context doesn't work without this
-                      (GET* "/" []
-                            :summary "Retrieve a list of all machines for a user"
-                            ;; TODO: Add an optional parameter to only retrieve active machines
-                            :query-params [accesstoken :- String]
-                            :return [Machine]
-                            (let [user-id (auth/authorize-google-code accesstoken)]
-                              (ok (machine/get-machines user-id))))
-                      (POST* "/" []
-                             :summary "Create a new machine based on the provided token-id"
-                             :query-params [token-id   :- String
-                                            hostname   :- String
-                                            machine-id :- String]
-                             ;:return Machine
-                             ;; FIXME: Can not specify return type here because invalid requests throw exceptions which return as a string. Can not see the exception if trying to return a Machine
-                             (ok (machine/create-machine machine-id hostname token-id)))
-                      (DELETE* "/" []
-                              :summary "Delete a machine by the machine-id and retrieve a list
-                                        of the remaining valid tokens"
-                              :query-params [accesstoken :- String
-                                             machine-id  :- String]
-                              :return [Machine]
-                              (let [user-id (auth/authorize-google-code accesstoken)]
-                                (ok (machine/delete-machine machine-id user-id))))))
-  (swaggered "file"
-             :description "A specific dotfile for a user"
-             (context "/file" []
-                      legacy-route ;; For some reason being in a context doesn't work without this
-                      (GET* "/:file-id" [file-id]
-                            :summary "Retrieve the latest version of a file by id"
-                            ;; TODO: Add an optional parameter to retrieve a specific version
-                            :query-params [accesstoken :- String]
-                            (let [user-id (auth/authorize-google-code accesstoken)]
-                              (ok (file/get-file-binary user-id file-id))))
-                      (POST* "/" []
-                             :summary "Create a new file for the user with the provided accesstoken"
-                             :query-params [accesstoken :- String
-                                            path   :- String
-                                            sha256 :- String]
-                             :body [body s/Str]
-                             ;(let [user-id (auth/authorize-google-code accesstoken)]
-                               ;(ok (file/create-file user-id path sha256 content)))
-                             (ok "test")))))
+(defroutes authenticated-routes*
+  (context "/user" []
+           (GET "/" {{user-id :user-id} :params}
+                (http/ok (user/get-or-create-user user-id))))
+  (context "/token" []
+           (GET "/" {{user-id :user-id} :params}
+                (http/ok (token/get-tokens user-id)))
+           (POST "/" {{user-id :user-id} :params
+                      newToken           :body}
+                 (http/created (token/create-token user-id (s/validate NewToken newToken))))
+           (DELETE "/" {{token-id :token-id} :params}
+                   (http/ok (token/delete-token token-id))))
+  (context "/machine" []
+           (GET "/" {{user-id :user-id} :params}
+                (http/ok (machine/get-machines user-id)))
+           (POST "/" {{token-id   :token-id
+                       hostname   :hostname
+                       machine-id :machine-id} :params}
+                 (http/ok (machine/create-machine machine-id hostname token-id)))
+           (DELETE "/" {{user-id    :user-id
+                         machine-id :machine-id} :params}
+                   (http/ok (machine/delete-machine machine-id user-id))))
+  (context "/file" []
+           (GET "/:file-id" {{user-id :user-id
+                              file-id :file-id} :params}
+                (http/ok (file/get-file-binary user-id file-id)))
+           (POST "/" {{user-id :user-id
+                       path    :path
+                       sha256  :sha256} :params
+                       content          :body}
+                 (http/ok (file/create-file user-id path sha256 content)))))
+(def authenticated-routes
+  (-> #'authenticated-routes*
+      (wrap-authentication)
+      (wrap-json-body {:keywords? true})
+      (wrap-restful-response)))
+
+(defroutes other-routes
+  "These routes do not require the accesstoken or machine-id and are used for
+  anything that is unsecured such as OPTIONS requests or catching invalid methods"
+  (context "/user" []
+           (OPTIONS "/" []
+                    (http/options [:options :get])))
+  (context "/token" []
+           (OPTIONS "/" []
+                    (http/options [:options :get :post :delete])))
+  (context "/machine" []
+           (OPTIONS "/" []
+                    (http/options [:options :get :post :delete])))
+  (context "/file" []
+           (OPTIONS "/" []
+                    (http/options [:options :get :post]))))
+
+;; TODO: Catch exceptions such as validation exceptions and give helpful error messages
 
 (def app
-  api)
+  (api (routes
+         (ANY "*" [] other-routes)
+         (ANY "*" [] authenticated-routes))))
 
 
 
