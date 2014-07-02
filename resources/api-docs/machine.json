@@ -4,7 +4,91 @@
     "basePath": "http://api.dotdeploy.works",
     "resourcePath": "/machine",
     "produces": ["application/json"],
-    "apis": [ ],
+    "apis": [
+        {
+            "path": "/machine",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get all machines for the user which corresponds with the provided accesstoken",
+                    "type": "array",
+                    "items": {
+                        "$ref": "Machine"
+                    },
+                    "nickname": "findMachines",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "accesstoken",
+                            "description": "Token provided from authentication with Google OAuth",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "query"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 500,
+                            "message": "This is temporary and likely means your accesstoken is invalid."
+                        }
+                    ]
+                },
+                {
+                    "method": "POST",
+                    "summary": "Create a new machine for the user which corresponds with the provided accesstoken",
+                    "type": "void",
+                    "nickname": "createNewMachine",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "token-id",
+                            "description": "Token for the user which will own this new machine",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "query"
+                        },
+                        {
+                            "name": "hostname",
+                            "description": "Name of the host which is being added",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "query"
+                        },
+                        {
+                            "name": "machine-id",
+                            "description": "UUID which should be used as the new machine-id",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "query"
+                        }
+                    ]
+                },
+                {
+                    "method": "DELETE",
+                    "summary": "Delete a machine based on the provided machine-id",
+                    "type": "void",
+                    "nickname": "deleteMachine",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "accesstoken",
+                            "description": "Token provided from authentication with Google OAuth",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "query"
+                        },
+                        {
+                            "name": "machine-id",
+                            "description": "machine-id of the machine which should be deleted",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "query"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
     "models": {
         "Machine": {
             "id": "Machine",

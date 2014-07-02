@@ -4,7 +4,84 @@
     "basePath": "http://api.dotdeploy.works",
     "resourcePath": "/file",
     "produces": ["application/json"],
-    "apis": [ ],
+    "apis": [
+        {
+            "path": "/file/{file-id}",
+            "operations": [
+                {
+                    "method": "GET",
+                    "summary": "Get a file with the given file-id",
+                    "type": "string",
+                    "nickname": "getFileBinary",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "accesstoken",
+                            "description": "Token provided from authentication with Google OAuth",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "query"
+                        },
+                        {
+                            "name": "file-id",
+                            "description": "File-id of the file which should be retrieved",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "path"
+                        }
+                    ],
+                    "responseMessages": [
+                        {
+                            "code": 500,
+                            "message": "This is temporary and likely means your accesstoken is invalid."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "path": "/file",
+            "operations": [
+                {
+                    "method": "POST",
+                    "summary": "Upload a new file for the user which corresponds with the provided accesstoken",
+                    "type": "void",
+                    "nickname": "createNewFile",
+                    "authorizations": {},
+                    "parameters": [
+                        {
+                            "name": "token-id",
+                            "description": "Token for the user which will own this new machine",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "query"
+                        },
+                        {
+                            "name": "sha256",
+                            "description": "SHA256 hash of the content of the file being uploaded",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "query"
+                        },
+                        {
+                            "name": "path",
+                            "description": "Path in which this file is located when on a machine",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "query"
+                        },
+                        {
+                            "name": "content",
+                            "description": "Body of the file to upload",
+                            "required": "true",
+                            "type": "string",
+                            "paramType": "body"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
     "models": {
         "FileRevision": {
             "id": "FileRevision",

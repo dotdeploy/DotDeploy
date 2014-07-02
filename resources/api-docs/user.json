@@ -10,7 +10,7 @@
             "operations": [
                 {
                     "method": "GET",
-                    "summary": "Retrieve all known information about a user which cooresponds with the provided accesstoken",
+                    "summary": "Retrieve all known information about a user which corresponds with the provided accesstoken",
                     "type": "User",
                     "nickname": "findUser",
                     "authorizations": {},
