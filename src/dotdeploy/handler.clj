@@ -3,7 +3,7 @@
             [compojure.core :refer :all]
             [compojure.handler :refer [api]]
             [ring.middleware.format-response :refer [wrap-restful-response]]
-            [ring.util.response :refer [redirect file-response]]
+            [ring.util.response :refer [redirect file-response header get-header]]
             [ring.middleware.json :refer [wrap-json-body]]
             [ring.middleware.resource :refer [wrap-resource]]
             [dotdeploy.models :refer :all]
@@ -24,6 +24,19 @@
     (if-let [accesstoken (:accesstoken (:params req))]
       (handler (assoc-in req [:params :user-id] (auth/authorize-google-code accesstoken)))
       (throw (Exception. "There is no accesstoken!")))))
+
+(defn wrap-access-control-headers
+  "Add Access-Control-Allow-Origin headers to enable javascript requets"
+  [handler]
+  (fn [req]
+    (if-let [origin (get-header req "origin")]
+      (if (#{"http://localhost"  "http://dotdeploy.works"
+             "https://localhost" "https://dotdeploy.works"} origin)
+        (-> req
+            handler
+            (header "Access-Control-Allow-Origin" origin))
+        (handler req))
+      (handler req))))
 
 (defroutes authenticated-routes*
   (context "/user" []
@@ -60,7 +73,8 @@
   (-> #'authenticated-routes*
       (wrap-authentication)
       (wrap-json-body {:keywords? true})
-      (wrap-restful-response)))
+      (wrap-restful-response)
+      (wrap-access-control-headers)))
 
 (defroutes other-routes
   "These routes do not require the accesstoken or machine-id and are used for
